@@ -3,11 +3,11 @@ from morpion import *
 game = Game()
 game.initialize_game()
 
-game.make_move(Move(0, 0, Symbol.CROSS))
-game.make_move(Move(0, 1, Symbol.CIRCLE))
-game.make_move(Move(0, 2, Symbol.CROSS))
-game.make_move(Move(2, 0, Symbol.CIRCLE))
-game.make_move(Move(1, 0, Symbol.CROSS))
+# game.make_move(Move(0, 0, Symbol.CROSS))
+# game.make_move(Move(0, 1, Symbol.CIRCLE))
+# game.make_move(Move(0, 2, Symbol.CROSS))
+# game.make_move(Move(2, 0, Symbol.CIRCLE))
+# game.make_move(Move(1, 0, Symbol.CROSS))
 
 # game.make_move(Move(0, 0, Symbol.CROSS))
 # game.make_move(Move(0, 1, Symbol.CIRCLE))

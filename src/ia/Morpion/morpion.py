@@ -107,8 +107,6 @@ class Game:
         self.to_move = Symbol.CROSS
 
     def make_move(self, move: Move) -> bool:
-        if self.get_outcome() != Outcome.NOT_OVER:
-            return False
         if self.to_move == move.symbol:
             if self.board[move.lin][move.col] == Symbol.EMPTY:
                 self.board[move.lin][move.col] = move.symbol
@@ -140,19 +138,25 @@ class Game:
             game_string += '\n'
         return game_string
 
-    def get_best_move(self) -> Tuple[float, Move or None]:
+    def get_best_move(self, alpha: float = -float('inf'), beta: float = float('inf')) -> Tuple[float, Move or None]:
         if self.get_outcome() != Outcome.NOT_OVER:
             return self.eval(), None
         evals = PriorityQueue()
         for move in self.get_avail_moves():
             child = deepcopy(self)
             child.make_move(move)
-            best_move = child.get_best_move()
+            best_child_move = child.get_best_move()
             if self.to_move == Symbol.CROSS:
-                best_move = (-best_move[0], move)
+                alpha = max(alpha, best_child_move[0])
+                if best_child_move[0] >= beta:
+                    return best_child_move[0], move
+                best_child_move = (-best_child_move[0], move)
             else:
-                best_move = (best_move[0], move)
-            evals.put(best_move)
+                beta = max(beta, best_child_move[0])
+                if best_child_move[0] <= alpha:
+                    return best_child_move[0], move
+                best_child_move = (best_child_move[0], move)
+            evals.put(best_child_move)
         best_move = evals.get()
         if self.to_move == Symbol.CROSS:
             best_move = (-best_move[0], best_move[1])
