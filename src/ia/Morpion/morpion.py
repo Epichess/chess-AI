@@ -146,7 +146,6 @@ class Game:
         evals = PriorityQueue()
         for move in self.get_avail_moves():
             child = deepcopy(self)
-            # print(child)
             child.make_move(move)
             best_move = child.get_best_move()
             if self.to_move == Symbol.CROSS:
@@ -155,14 +154,9 @@ class Game:
                 best_move = (best_move[0], move)
             evals.put(best_move)
         best_move = evals.get()
-        print(string_eval(best_move))
-        while not evals.empty():
-            print(string_eval(evals.get()))
+        if self.to_move == Symbol.CROSS:
+            best_move = (-best_move[0], best_move[1])
         return best_move
-
-    def get_best_move_corrected(self) -> Tuple[float, Move or None]:
-        best_move = self.get_best_move()
-        return -best_move[0], best_move[1]
 
 
 def string_eval(eval: Tuple[float, Move]) -> str:
