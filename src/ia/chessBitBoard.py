@@ -1,5 +1,4 @@
 class Bitboard:
-
     def __init__(self, fen):
         self.dict = {
             'r': 0b0000000000000000000000000000000000000000000000000000000000000000,
@@ -56,3 +55,24 @@ class Bitboard:
             if not found:
                 tmp += 1
         return fen
+
+
+class Move:
+    start: int
+    end: int
+    flag: int
+    promotedPiece: int
+
+
+def str_bit_board(bits: int) -> str:
+    string = ''
+    for i in range(8):
+        string += '|'
+        for j in range(8):
+            bit = bits & 0b1
+            string += str(bit)
+            string += '|'
+            bits = bits >> 1
+        string += '\n'
+    return string
+
