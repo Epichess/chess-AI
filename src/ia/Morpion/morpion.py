@@ -1,20 +1,20 @@
-from enum import Enum
+from enum import IntEnum
 from typing import Tuple
 from copy import deepcopy
 from queue import PriorityQueue
 
 
-class Outcome(Enum):
+class Outcome(IntEnum):
     NOT_OVER = 0
     CIRCLE = 1
     CROSS = 2
     DRAW = 3
 
 
-class Symbol(Enum):
-    EMPTY = 0
-    CIRCLE = 1
-    CROSS = 2
+class Symbol(IntEnum):
+    CIRCLE = 0
+    CROSS = 1
+    EMPTY = 2
 
     def __str__(self):
         if self == Symbol.EMPTY:
@@ -138,29 +138,48 @@ class Game:
             game_string += '\n'
         return game_string
 
-    def get_best_move(self, alpha: float = -float('inf'), beta: float = float('inf')) -> Tuple[float, Move or None]:
+    def get_best_move(self, hash_table: dict[int, Tuple[float, Move or None]] = None, alpha: float = -float('inf'), beta: float = float('inf')) -> Tuple[float, Move or None]:
+        if hash_table is None:
+            hash_table = dict()
+        self_hash = self.__hash__()
+        if hash_table.__contains__(self_hash):
+            return hash_table.get(self_hash)
         if self.get_outcome() != Outcome.NOT_OVER:
-            return self.eval(), None
+            eval = self.eval()
+            hash_table[self.__hash__()] = (eval, None)
+            return eval, None
+
         evals = PriorityQueue()
         for move in self.get_avail_moves():
             child = deepcopy(self)
             child.make_move(move)
-            best_child_move = child.get_best_move()
+            best_child_move = child.get_best_move(hash_table)
             if self.to_move == Symbol.CROSS:
                 alpha = max(alpha, best_child_move[0])
                 if best_child_move[0] >= beta:
+                    hash_table[self_hash] = (best_child_move[0], move)
                     return best_child_move[0], move
                 best_child_move = (-best_child_move[0], move)
             else:
                 beta = max(beta, best_child_move[0])
                 if best_child_move[0] <= alpha:
+                    hash_table[self_hash] = (best_child_move[0], move)
                     return best_child_move[0], move
                 best_child_move = (best_child_move[0], move)
             evals.put(best_child_move)
         best_move = evals.get()
         if self.to_move == Symbol.CROSS:
             best_move = (-best_move[0], best_move[1])
+            hash_table[self_hash] = best_move[0], best_move[1]
         return best_move
+
+    def __hash__(self):
+        hash = 1
+        hash += 3 * int(self.to_move)
+        for lin in range(3):
+            for col in range(3):
+                hash += int(self.board[lin][col]) * pow(3, lin * 3 + col + 1)
+        return hash
 
 
 def string_eval(eval: Tuple[float, Move]) -> str:
