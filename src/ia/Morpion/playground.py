@@ -3,11 +3,14 @@ from morpion import *
 game = Game()
 game.initialize_game()
 
-# game.make_move(Move(0, 0, Symbol.CROSS))
-# game.make_move(Move(0, 1, Symbol.CIRCLE))
-# game.make_move(Move(0, 2, Symbol.CROSS))
-# game.make_move(Move(2, 0, Symbol.CIRCLE))
+hashtable = dict()
+
+# game.make_move(Move(1, 1, Symbol.CROSS))
+# game.make_move(Move(2, 1, Symbol.CIRCLE))
 # game.make_move(Move(1, 0, Symbol.CROSS))
+# game.make_move(Move(2, 0, Symbol.CIRCLE))
+# game.make_move(Move(1, 1, Symbol.CROSS))
+# game.make_move(Move(2, 2, Symbol.CIRCLE))
 
 # game.make_move(Move(0, 0, Symbol.CROSS))
 # game.make_move(Move(0, 1, Symbol.CIRCLE))
@@ -21,7 +24,8 @@ game.initialize_game()
 
 print(game)
 
-best_move = game.get_best_move()
+best_move = game.get_best_move(hashtable)
+# print(hashtable)
 
 print(best_move[0])
 print(best_move[1])

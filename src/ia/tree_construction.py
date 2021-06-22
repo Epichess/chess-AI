@@ -1,3 +1,0 @@
-from vertex import Vertex
-
-
