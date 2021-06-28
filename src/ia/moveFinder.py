@@ -6,8 +6,7 @@ class MoveFinder():
         knights = self.get_knight_moves()
         kings = self.get_king_moves()
         black_pawns_capture = self.get_black_pawn_capture()
-
-        self.dump_moves(knights)
+        white_pawns_capture = self.get_white_pawn_capture()
 
     def get_index(self, bits):
         i = 0
@@ -139,6 +138,37 @@ class MoveFinder():
             if row == 0:
                 self.safe_remove(ind, [-7, -9])
 
+            for n in ind:
+                if (n < 0):
+                    a = a | (b << abs(n))
+                else:
+                    a = a | (b >> n)
+            a -= 2 ** (63 - i)
+            pawns[i] = a
+        return pawns
+
+    def get_white_pawn_capture(self):
+        pawns = {}
+
+        for i in range(0, 64):
+            row = self.get_row(i)
+            col = self.get_col(i)
+
+            a = 0b0000000000000000000000000000000000000000000000000000000000000000
+            a += 2 ** (63 - i)
+            b = 0b0000000000000000000000000000000000000000000000000000000000000000
+            b += 2 ** (63 - i)
+
+            ind = [7, 9]
+            if col == 0:
+                self.safe_remove(ind, [7])
+            elif col == 7:
+                self.safe_remove(ind, [9])
+            if row == 0:
+                self.safe_remove(ind, [7, 9])
+
+            if (row == 7 and col == 6):
+                print(ind)
             for n in ind:
                 if (n < 0):
                     a = a | (b << abs(n))
