@@ -5,8 +5,8 @@ game.initialize_game()
 
 hashtable = dict()
 
-# game.make_move(Move(1, 1, Symbol.CROSS))
-# game.make_move(Move(2, 1, Symbol.CIRCLE))
+game.make_move(Move(1, 1, Symbol.CROSS))
+game.make_move(Move(2, 1, Symbol.CIRCLE))
 # game.make_move(Move(0, 0, Symbol.CROSS))
 # game.make_move(Move(2, 2, Symbol.CIRCLE))
 # game.make_move(Move(2, 0, Symbol.CROSS))
