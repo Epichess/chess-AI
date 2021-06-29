@@ -1,8 +1,6 @@
 from chessBitBoard import Bitboard
 # from moveFinder import MoveFinder
 
-from bitarray import bitarray
-
 import sys
 import time
 
@@ -16,6 +14,7 @@ b = Bitboard("rnbqkbnr/pppppp1p/6p1/8/8/8/PPPPPPPP/RNBQKBNR")
 # end = time.time()
 # print("FEN in " + str((end - start) * 1000) + " ms")
 # b.dump_board('P')
+
 
 # finder = MoveFinder()
 
@@ -48,3 +47,6 @@ b = Bitboard("rnbqkbnr/pppppp1p/6p1/8/8/8/PPPPPPPP/RNBQKBNR")
 
 
 # print(f'{0x000101010101017E:064b}')
+
+finder = MoveFinder()
+
