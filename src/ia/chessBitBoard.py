@@ -1,5 +1,30 @@
+from moveFinder import get_knight_moves, get_king_moves, get_black_pawn_capture, get_black_pawn_move, get_white_pawn_capture, get_white_pawn_move, get_magic_line_mask, get_magic_diagonal_mask
+
+
 class Bitboard:
+    knights = dict[int, int]
+    kings = dict[int, int]
+    black_pawns_capture = dict[int, int]
+    black_pawns_moves = dict[int, int]
+    white_pawns_capture = dict[int, int]
+    white_pawns_moves = dict[int, int]
+
+    magic_line_masks = dict[int, int]
+    magic_diagonal_masks = dict[int, int]
+
     def __init__(self, fen):
+        # Bitboard movement maps
+        self.knights = get_knight_moves()
+        self.kings = get_king_moves()
+        self.black_pawns_capture = get_black_pawn_capture()
+        self.black_pawns_moves = get_black_pawn_move()
+        self.white_pawns_capture = get_white_pawn_capture()
+        self.white_pawns_moves = get_white_pawn_move()
+
+        self.magic_line_masks = get_magic_line_mask()
+        self.magic_diagonal_masks = get_magic_diagonal_mask()
+
+        # Pieces bitboard dictionnary
         self.dict = {
             'r': 0b0000000000000000000000000000000000000000000000000000000000000000,
             'n': 0b0000000000000000000000000000000000000000000000000000000000000000,
@@ -14,6 +39,8 @@ class Bitboard:
             'K': 0b0000000000000000000000000000000000000000000000000000000000000000,
             'P': 0b0000000000000000000000000000000000000000000000000000000000000000,
         }
+
+        # Fill the bitboard dictionnary
         i = 64
         for p in fen.split(' ')[0]:
             i -= 1 if ord(p) > 57 else ord(p) - 48 if ord(p) > 47 else 0
@@ -21,17 +48,7 @@ class Bitboard:
                 continue
             self.dict[p] += 2 ** i
 
-    def dump_board(self, p):
-        print("Bitstring: " + self.dump_bitstring(self.dict[p]))
-        board = list(self.dump_bitstring(self.dict[p]))
-
-        print("\nBitboard: {0}\n".format(p))
-        for i in range(0, 8):
-            print(' '.join(board[slice(i * 8, i * 8 + 8)]))
-
-    def dump_bitstring(self, bits):
-        return f'{bits:064b}'
-
+    # Retrieve FEN line from dictionnary
     def get_fen(self):
         fen = ""
         tmp = 0
@@ -56,6 +73,20 @@ class Bitboard:
                 tmp += 1
         return fen
 
+    # Retrieve possible captures map
+    def get_captures(self, piece, index):
+        p = piece.lower()
+        move_map = (self.knights if p == 'n'
+                    else self.kings if p == 'k'
+                    else self.black_pawns_capture if piece == 'p'
+                    else self.white_pawns_capture)[index]
+
+        captures = (move_map & self.dict['r']) | (
+            move_map & self.dict['n']) | (move_map & self.dict['b']) | (
+            move_map & self.dict['q']) | (move_map & self.dict['k']) | (
+            move_map & self.dict['p'])
+        return captures
+
 
 class Move:
     start: int
@@ -64,6 +95,13 @@ class Move:
     promotedPiece: int
 
 
+# Display all formated moves
+def dump_moves(moves):
+    for key, value in moves.items():
+        print(str_bit_board(value))
+
+
+# Display bitboard in a more readable way
 def str_bit_board(bits: int) -> str:
     arr = []
     for i in range(8):
@@ -79,3 +117,7 @@ def str_bit_board(bits: int) -> str:
     s = ''
     return s.join(arr)
 
+
+# Returns 64 chars formated bitboard string
+def dump_bitstring(bits):
+    return f'{bits:064b}'
