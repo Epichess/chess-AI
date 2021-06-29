@@ -2,11 +2,16 @@ import math
 
 
 class MoveFinder():
+    knights: dict[int, int]
+    kings: dict[int, int]
+    black_pawns_capture: dict[int, int]
+    white_pawns_capture: dict[int, int]
+
     def __init__(self):
-        knights = self.get_knight_moves()
-        kings = self.get_king_moves()
-        black_pawns_capture = self.get_black_pawn_capture()
-        white_pawns_capture = self.get_white_pawn_capture()
+        self.knights = self.get_knight_moves()
+        self.kings = self.get_king_moves()
+        self.black_pawns_capture = self.get_black_pawn_capture()
+        self.white_pawns_capture = self.get_white_pawn_capture()
 
     def get_index(self, bits):
         i = 0

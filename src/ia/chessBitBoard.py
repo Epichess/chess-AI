@@ -65,14 +65,17 @@ class Move:
 
 
 def str_bit_board(bits: int) -> str:
-    string = ''
+    arr = []
     for i in range(8):
-        string += '|'
+        string = '|'
         for j in range(8):
             bit = bits & 0b1
             string += str(bit)
             string += '|'
             bits = bits >> 1
         string += '\n'
-    return string
+        arr.append(string)
+    arr.reverse()
+    s = ''
+    return s.join(arr)
 
