@@ -288,3 +288,5 @@ def get_magic_diagonal_mask():
 
         masks[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return masks
+
+#
