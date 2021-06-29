@@ -1,8 +1,6 @@
 from chessBitBoard import Bitboard
 from moveFinder import MoveFinder
 
-from bitarray import bitarray
-
 import sys
 import time
 
