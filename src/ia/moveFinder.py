@@ -246,3 +246,60 @@ def get_magic_line_mask():
 
         masks[i] = a
     return masks
+
+
+def str_bit_board(bits: int) -> str:
+    string = ''
+    for i in range(8):
+        string += '|'
+        for j in range(8):
+            bit = bits & 0b1
+            string += str(bit)
+            string += '|'
+            bits = bits >> 1
+        string += '\n'
+    return string
+
+
+def get_magic_diagonal_mask():
+    masks = {}
+
+    for i in range(0, 64):
+        row = get_row(i)
+        col = get_col(i)
+
+        a = 0b0000000000000000000000000000000000000000000000000000000000000000
+        a += 2 ** (63 - i)
+
+        b = 0b0000000000000000000000000000000000000000000000000000000000000000
+        b += 2 ** (63 - i)
+        for j in range(7 - row):
+            # if (get_row(8 * j - j) != row + j):
+            #     break
+            a |= b >> (8 * j - j)
+
+        b = 0b0000000000000000000000000000000000000000000000000000000000000000
+        b += 2 ** (63 - i)
+        for j in range(row):
+            # if (get_row(8 * j + j) != row - j):
+            #     break
+            a |= b << (8 * j + j)
+
+        b = 0b0000000000000000000000000000000000000000000000000000000000000000
+        b += 2 ** (63 - i)
+        for j in range(7 - col):
+            # if (get_col(8 * j + j) != col + j):
+            #     break
+            a |= b >> (j + 8 * j)
+
+        b = 0b0000000000000000000000000000000000000000000000000000000000000000
+        b += 2 ** (63 - i)
+        for j in range(col):
+            # if (get_col(8 * j + j) != col - j):
+            #     break
+            a |= b << (j + 8 * j)
+
+        print(str_bit_board(a))
+
+        masks[i] = a
+    return masks

@@ -1,4 +1,4 @@
-from moveFinder import get_knight_moves, get_king_moves, get_black_pawn_capture, get_black_pawn_move, get_white_pawn_capture, get_white_pawn_move, get_magic_line_mask
+from moveFinder import get_knight_moves, get_king_moves, get_black_pawn_capture, get_black_pawn_move, get_white_pawn_capture, get_white_pawn_move, get_magic_line_mask, get_magic_diagonal_mask
 
 
 class Bitboard:
@@ -10,6 +10,7 @@ class Bitboard:
     white_pawns_moves = dict[int, int]
 
     magic_line_masks = dict[int, int]
+    magic_diagonal_masks = dict[int, int]
 
     def __init__(self, fen):
         # Bitboard movement maps
@@ -21,6 +22,7 @@ class Bitboard:
         self.white_pawns_moves = get_white_pawn_move()
 
         self.magic_line_masks = get_magic_line_mask()
+        self.magic_diagonal_masks = get_magic_diagonal_mask()
 
         # Pieces bitboard dictionnary
         self.dict = {
