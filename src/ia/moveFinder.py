@@ -62,7 +62,7 @@ def get_knight_moves():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        knights[i] = a
+        knights[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return knights
 
 
@@ -94,7 +94,7 @@ def get_king_moves():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        kings[i] = a
+        kings[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return kings
 
 
@@ -124,7 +124,7 @@ def get_black_pawn_capture():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        pawns[i] = a
+        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 
@@ -154,7 +154,7 @@ def get_white_pawn_capture():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        pawns[i] = a
+        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 
@@ -182,7 +182,7 @@ def get_white_pawn_move():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        pawns[i] = a
+        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 
@@ -210,7 +210,7 @@ def get_black_pawn_move():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        pawns[i] = a
+        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 
@@ -244,21 +244,8 @@ def get_magic_line_mask():
         for j in range(col):
             a |= b << (j)
 
-        masks[i] = a
+        masks[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return masks
-
-
-def str_bit_board(bits: int) -> str:
-    string = ''
-    for i in range(8):
-        string += '|'
-        for j in range(8):
-            bit = bits & 0b1
-            string += str(bit)
-            string += '|'
-            bits = bits >> 1
-        string += '\n'
-    return string
 
 
 def get_magic_diagonal_mask():
@@ -299,7 +286,5 @@ def get_magic_diagonal_mask():
             #     break
             a |= b << (j + 8 * j)
 
-        print(str_bit_board(a))
-
-        masks[i] = a
+        masks[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return masks
