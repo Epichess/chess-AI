@@ -43,7 +43,12 @@ class Bitboard:
 
         # Fill the bitboard dictionnary
         i = 64
-        for p in fen.split(' ')[0]:
+        rev = fen.split(' ')[0].split('/')
+        res = []
+        for r in rev:
+            res.append(r[::-1])
+        rev = '/'.join(res)
+        for p in rev:
             i -= 1 if ord(p) > 57 else ord(p) - 48 if ord(p) > 47 else 0
             if i < 0 or p not in self.dict:
                 continue
@@ -97,9 +102,15 @@ class Bitboard:
 
         squares = self.extract_index(captures)
         cap = []
-        for new_square in squares:
-            cap.append(MoveInfo((square, new_square), side, piece,
-                       captured_piece=self.get_piece_by_index(new_square)))
+        if (piece == 'P' and square < 56 and square > 47) or (piece == 'p' and square > 7 and square < 16):
+            for new_square in squares:
+                for l in ['N', 'R', 'B', 'Q']:
+                    cap.append(MoveInfo((square, new_square), MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece,
+                                        captured_piece=self.get_piece_by_index(new_square), promotion_piece=l))
+        else:
+            for new_square in squares:
+                cap.append(MoveInfo((square, new_square), MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece,
+                                    captured_piece=self.get_piece_by_index(new_square)))
         return cap
 
     # Generate possible moves MoveInfo list
@@ -114,8 +125,15 @@ class Bitboard:
 
         squares = self.extract_index(move_map ^ moves ^ captures)
         moves = []
-        for new_square in squares:
-            moves.append(MoveInfo((square, new_square), side, piece))
+        if (piece == 'P' and square < 56 and square > 47) or (piece == 'p' and square > 7 and square < 16):
+            for new_square in squares:
+                for l in ['N', 'R', 'B', 'Q']:
+                    moves.append(MoveInfo(
+                        (square, new_square), MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece, promotion_piece=l))
+        else:
+            for new_square in squares:
+                moves.append(MoveInfo((square, new_square),
+                             MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece))
         return moves
 
     def extract_index(self, bitboard):
