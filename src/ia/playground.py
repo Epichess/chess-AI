@@ -1,11 +1,12 @@
 from chessBitBoard import *
 from magic_moves import *
 
-mbit = 0b0100100000000000000001000100000000000010000000000000101000010000
-print(str_bit_board(mbit))
-sqr = 23
+hset = set()
+vset = set()
+gen_horizontal_perms(7, 0b10, 0, hset)
+gen_vertical_perms(7, 0b100000000, 0, vset)
 
-shifter = 0b1 << sqr
-
-print(str_bit_board(masked_occup_to_rook_moves(mbit, sqr)))
-print(str_bit_board(masked_occup_to_bishop_moves(mbit, sqr)))
+for v in vset:
+    print(str_bit_board(v << 2))
+for h in hset:
+    print(str_bit_board(h << 3*8))

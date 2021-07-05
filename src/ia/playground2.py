@@ -1,3 +1,6 @@
 from chessBitBoard import *
+from magic_moves import *
 
-print(str_bit_board(0b1 << 8*0))
+for sqr in range(64):
+    print(len(gen_blockers(sqr)))
+
