@@ -1,4 +1,5 @@
 from moveFinder import get_knight_moves, get_king_moves, get_black_pawn_capture, get_black_pawn_move, get_white_pawn_capture, get_white_pawn_move, get_magic_line_mask, get_magic_diagonal_mask
+from MoveInfo import MoveInfo
 
 
 class Bitboard:
@@ -12,7 +13,7 @@ class Bitboard:
     magic_line_masks = dict[int, int]
     magic_diagonal_masks = dict[int, int]
 
-    def __init__(self, fen):
+    def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
         # Bitboard movement maps
         self.knights = get_knight_moves()
         self.kings = get_king_moves()
@@ -73,19 +74,56 @@ class Bitboard:
                 tmp += 1
         return fen
 
-    # Retrieve possible captures map
-    def get_captures(self, piece, index):
-        p = piece.lower()
-        move_map = (self.knights if p == 'n'
-                    else self.kings if p == 'k'
-                    else self.black_pawns_capture if piece == 'p'
-                    else self.white_pawns_capture)[index]
+    # Generate possible capture map
+    def get_capture_map(self, square, move_map, side):
+        enemies = 'rnbqkp' if side else 'RNBQKP'
 
-        captures = (move_map & self.dict['r']) | (
-            move_map & self.dict['n']) | (move_map & self.dict['b']) | (
-            move_map & self.dict['q']) | (move_map & self.dict['k']) | (
-            move_map & self.dict['p'])
+        captures = 0
+        for e in list(enemies):
+            c = move_map & self.dict[e]
+            captures |= c
         return captures
+
+    # Get piece type from bitboard index
+    def get_piece_by_index(self, index):
+        for key, value in self.dict.items():
+            if value & (2 ** index) > 0:
+                return key
+        return 'None'
+
+    # Generate possible captures MoveInfo list
+    def get_captures(self, square, move_map, side, piece):
+        captures = self.get_capture_map(square, move_map, side)
+
+        squares = self.extract_index(captures)
+        cap = []
+        for new_square in squares:
+            cap.append(MoveInfo((square, new_square), side, piece,
+                       captured_piece=self.get_piece_by_index(new_square)))
+        return cap
+
+    # Generate possible moves MoveInfo list
+    def get_moves(self, square, move_map, side, piece):
+        allies = 'rnbqkp' if not side else 'RNBQKP'
+        captures = self.get_capture_map(square, move_map, side)
+
+        moves = 0
+        for e in list(allies):
+            m = move_map & self.dict[e]
+            moves |= m
+
+        squares = self.extract_index(move_map ^ moves ^ captures)
+        moves = []
+        for new_square in squares:
+            moves.append(MoveInfo((square, new_square), side, piece))
+        return moves
+
+    def extract_index(self, bitboard):
+        a = []
+        for i in range(0, 63):
+            if (bitboard & 1 << i != 0):
+                a.append(i)
+        return a
 
 
 class Move:
