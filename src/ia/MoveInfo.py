@@ -49,3 +49,14 @@ class MoveInfo:
             self.piece == 'p' and self.side == self.Side.BLACK and self.move[1] < 8))
         self.promotion_piece = (promotion_piece.upper() if self.side ==
                                 self.Side.WHITE else promotion_piece.lower()) if self.promotion else None
+
+    def __str__(self) -> str:
+        pieces = {
+            'r': 'Rook',
+            'n': 'Knight',
+            'b': 'Bishop',
+            'q': 'Queen',
+            'k': 'King',
+            'p': 'Pawn',
+        }
+        return('Move: {0} -> {1}\nSide: {2}\nPiece: {3}\n{4}'.format(self.move[0], self.move[1], "White" if self.side else "Black", pieces[self.piece.lower()], "Captured piece: " + (pieces[self.captured_piece] if self.captured_piece != None else "None")))
