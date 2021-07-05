@@ -62,7 +62,7 @@ def get_knight_moves():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        knights[i] = a
+        knights[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return knights
 
 
@@ -94,7 +94,7 @@ def get_king_moves():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        kings[i] = a
+        kings[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return kings
 
 
@@ -124,7 +124,7 @@ def get_black_pawn_capture():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        pawns[i] = a
+        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 
@@ -154,7 +154,7 @@ def get_white_pawn_capture():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        pawns[i] = a
+        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 
@@ -182,7 +182,7 @@ def get_white_pawn_move():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        pawns[i] = a
+        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 
@@ -210,7 +210,7 @@ def get_black_pawn_move():
             else:
                 a = a | (b >> n)
         a -= 2 ** (63 - i)
-        pawns[i] = a
+        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 
@@ -244,21 +244,8 @@ def get_magic_line_mask():
         for j in range(col):
             a |= b << (j)
 
-        masks[i] = a
+        masks[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return masks
-
-
-def str_bit_board(bits: int) -> str:
-    string = ''
-    for i in range(8):
-        string += '|'
-        for j in range(8):
-            bit = bits & 0b1
-            string += str(bit)
-            string += '|'
-            bits = bits >> 1
-        string += '\n'
-    return string
 
 
 def get_magic_diagonal_mask():
@@ -269,37 +256,39 @@ def get_magic_diagonal_mask():
         col = get_col(i)
 
         a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (63 - i)
+        a += 2 ** (i)
 
+        # Top Right
         b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
-        for j in range(7 - row):
-            # if (get_row(8 * j - j) != row + j):
-            #     break
-            a |= b >> (8 * j - j)
+        b += 2 ** (i)
+        for j in range(1, 7 - row):
+            offset = (8 * j + j)
+            if get_row(i + offset) == row + j and get_col(i + offset) != 7:
+                a |= b << offset
 
+        # Bottom Left
         b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
-        for j in range(row):
-            # if (get_row(8 * j + j) != row - j):
-            #     break
-            a |= b << (8 * j + j)
+        b += 2 ** (i)
+        for j in range(1, row):
+            offset = (8 * j + j)
+            if get_row(i - offset) == row - j and get_col(i - offset) != 0:
+                a |= b >> offset
 
+        # Bottom Right
         b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
-        for j in range(7 - col):
-            # if (get_col(8 * j + j) != col + j):
-            #     break
-            a |= b >> (j + 8 * j)
+        b += 2 ** (i)
+        for j in range(1, row):
+            offset = (8 * j - j)
+            if get_row(i - offset) == row - j and get_col(i - offset) != 7:
+                a |= b >> offset
 
+        # Top Left
         b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
-        for j in range(col):
-            # if (get_col(8 * j + j) != col - j):
-            #     break
-            a |= b << (j + 8 * j)
-
-        print(str_bit_board(a))
+        b += 2 ** (i)
+        for j in range(1, 7 - row):
+            offset = (8 * j - j)
+            if get_row(i + offset) == get_row(i) + j and get_col(i + offset) != 0:
+                a |= b << offset
 
         masks[i] = a
     return masks
