@@ -1,4 +1,3 @@
-from chessBitBoard import str_bit_board as strb
 import random
 import CONSTANTS
 

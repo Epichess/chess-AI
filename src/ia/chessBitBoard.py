@@ -1,4 +1,8 @@
-from moveFinder import get_knight_moves, get_king_moves, get_black_pawn_capture, get_black_pawn_move, get_white_pawn_capture, get_white_pawn_move, get_magic_line_mask, get_magic_diagonal_mask
+from moveFinder import get_knight_moves, get_king_moves, get_black_pawn_capture, get_black_pawn_move, \
+    get_white_pawn_capture, get_white_pawn_move, get_magic_line_mask, get_magic_diagonal_mask
+from magic_moves import gen_bishop_blockers, gen_rook_blockers, gen_magic_number, masked_occup_to_bishop_moves, \
+    masked_occup_to_rook_moves, gen_magic_hashtable
+import CONSTANTS
 
 
 class Bitboard:
@@ -11,6 +15,8 @@ class Bitboard:
 
     magic_line_masks = dict[int, int]
     magic_diagonal_masks = dict[int, int]
+    bishop_hash_table = dict[int, dict[int, int]]
+    rook_hash_table = dict[int, dict[int, int]]
 
     def __init__(self, fen):
         # Bitboard movement maps
@@ -23,7 +29,16 @@ class Bitboard:
 
         self.magic_line_masks = get_magic_line_mask()
         self.magic_diagonal_masks = get_magic_diagonal_mask()
+        self.bishop_hash_table = dict()
+        self.rook_hash_table = dict()
 
+        for i in range(64):
+            self.bishop_hash_table[i] = gen_magic_hashtable(0, CONSTANTS.BISHOP_MAGIC[0][0],
+                                                            CONSTANTS.BISHOP_MAGIC[0][1], gen_bishop_blockers,
+                                                            masked_occup_to_bishop_moves)[1]
+            self.rook_hash_table[i] = gen_magic_hashtable(0, CONSTANTS.ROOK_MAGIC[0][0],
+                                                          CONSTANTS.ROOK_MAGIC[0][1], gen_rook_blockers,
+                                                          masked_occup_to_rook_moves)[1]
         # Pieces bitboard dictionnary
         self.dict = {
             'r': 0b0000000000000000000000000000000000000000000000000000000000000000,
@@ -78,13 +93,13 @@ class Bitboard:
         p = piece.lower()
         move_map = (self.knights if p == 'n'
                     else self.kings if p == 'k'
-                    else self.black_pawns_capture if piece == 'p'
-                    else self.white_pawns_capture)[index]
+        else self.black_pawns_capture if piece == 'p'
+        else self.white_pawns_capture)[index]
 
         captures = (move_map & self.dict['r']) | (
-            move_map & self.dict['n']) | (move_map & self.dict['b']) | (
-            move_map & self.dict['q']) | (move_map & self.dict['k']) | (
-            move_map & self.dict['p'])
+                move_map & self.dict['n']) | (move_map & self.dict['b']) | (
+                           move_map & self.dict['q']) | (move_map & self.dict['k']) | (
+                           move_map & self.dict['p'])
         return captures
 
 

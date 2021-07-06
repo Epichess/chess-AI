@@ -261,7 +261,7 @@ def str_bit_board(bits: int) -> str:
     return string
 
 
-def get_magic_diagonal_mask():
+def get_magic_diagonal_mask() -> dict[int, int]:
     masks = {}
 
     for i in range(0, 64):
