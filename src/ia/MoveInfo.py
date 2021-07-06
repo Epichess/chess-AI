@@ -58,5 +58,6 @@ class MoveInfo:
             'q': 'Queen',
             'k': 'King',
             'p': 'Pawn',
+            'None': 'None'
         }
         return('Move: {0} -> {1}\nSide: {2}\nPiece: {3}\n{4}\n{5}'.format(self.move[0], self.move[1], "White" if self.side else "Black", pieces[self.piece.lower()], "Captured piece: " + (pieces[self.captured_piece] if self.captured_piece != None else "None"), "Promoted to: " + (self.promotion_piece if self.promotion else "None")))

@@ -25,6 +25,8 @@ class Bitboard:
         self.magic_line_masks = get_magic_line_mask()
         self.magic_diagonal_masks = get_magic_diagonal_mask()
 
+        self.en_passant = -1
+
         # Pieces bitboard dictionnary
         self.dict = {
             'r': 0b0000000000000000000000000000000000000000000000000000000000000000,
@@ -87,6 +89,10 @@ class Bitboard:
         for e in list(enemies):
             c = move_map & self.dict[e]
             captures |= c
+        if self.en_passant > -1 and ((side and square > 31 and square < 40) or (not side and square > 23 and square < 32)):
+            c = move_map & (
+                0b0000000000000000000000000000000000000000000000000000000000000000 + (2 ** self.en_passant))
+            captures |= c
         return captures
 
     # Get piece type from bitboard index
@@ -107,6 +113,9 @@ class Bitboard:
                 for l in ['N', 'R', 'B', 'Q']:
                     cap.append(MoveInfo((square, new_square), MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece,
                                         captured_piece=self.get_piece_by_index(new_square), promotion_piece=l))
+        # elif self.en_passant > -1 and ((piece == 'P' and square < 40 and square > 31) or (piece == 'p' and square > 24 and square < 32)):
+        #     b = 2 ** self.en_passant
+        #     r =
         else:
             for new_square in squares:
                 cap.append(MoveInfo((square, new_square), MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece,
