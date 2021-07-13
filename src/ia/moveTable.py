@@ -1,20 +1,9 @@
-import math
+def get_row(i) -> int:
+    return i // 8
 
 
-def get_index(bits):
-    i = 0
-    for b in bits:
-        if b == 1:
-            return i
-        i += 1
-
-
-def get_row(i):
-    return math.floor(i / 8)
-
-
-def get_col(i):
-    return i - (get_row(i) * 8)
+def get_col(i) -> int:
+    return i % 8
 
 
 def safe_remove(array, indexes):
@@ -25,17 +14,16 @@ def safe_remove(array, indexes):
             pass
 
 
-def get_knight_moves():
+# This function returns an initialized knight move table
+def gen_knight_moves_table() -> dict[int, int]:
     knights = {}
 
     for i in range(0, 64):
         row = get_row(i)
         col = get_col(i)
 
-        a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (63 - i)
-        b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
+        a = 1 << (63 - i)
+        b = 1 << (63 - i)
 
         ind = [6, -6, 10, -10, 15, -15, 17, -17]
         if col == 0:
@@ -66,17 +54,16 @@ def get_knight_moves():
     return knights
 
 
-def get_king_moves():
+# This function returns an initialized king move table
+def gen_king_moves_table():
     kings = {}
 
     for i in range(0, 64):
         row = get_row(i)
         col = get_col(i)
 
-        a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (63 - i)
-        b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
+        a = 1 << (63 - i)
+        b = 1 << (63 - i)
 
         ind = [1, -1, 7, -7, 8, -8, 9, -9]
         if col == 0:
@@ -98,17 +85,16 @@ def get_king_moves():
     return kings
 
 
-def get_black_pawn_capture():
+# This function returns an initialized black pawn capture table
+def gen_black_pawn_capture_table():
     pawns = {}
 
     for i in range(0, 64):
         row = get_row(i)
         col = get_col(i)
 
-        a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (63 - i)
-        b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
+        a = 1 << (63 - i)
+        b = 1 << (63 - i)
 
         ind = [-7, -9]
         if col == 0:
@@ -128,17 +114,16 @@ def get_black_pawn_capture():
     return pawns
 
 
-def get_white_pawn_capture():
+# This function returns an initialized white pawn capture table
+def gen_white_pawn_capture_table():
     pawns = {}
 
     for i in range(0, 64):
         row = get_row(i)
         col = get_col(i)
 
-        a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (63 - i)
-        b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
+        a = 1 << (63 - i)
+        b = 1 << (63 - i)
 
         ind = [7, 9]
         if col == 0:
@@ -158,17 +143,16 @@ def get_white_pawn_capture():
     return pawns
 
 
-def get_white_pawn_move():
+# This function returns an initialized white pawn move table
+def gen_white_pawn_move_table():
     pawns = {}
 
     for i in range(0, 64):
         row = get_row(i)
         col = get_col(i)
 
-        a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (63 - i)
-        b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
+        a = 1 << (63 - i)
+        b = 1 << (63 - i)
 
         ind = [8, 16]
         if row != 1:
@@ -186,17 +170,16 @@ def get_white_pawn_move():
     return pawns
 
 
-def get_black_pawn_move():
+# This function returns an initialized black pawn move table
+def gen_black_pawn_move_table():
     pawns = {}
 
     for i in range(0, 64):
         row = get_row(i)
         col = get_col(i)
 
-        a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (63 - i)
-        b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
+        a = 1 << (63 - i)
+        b = 1 << (63 - i)
 
         ind = [-8, -16]
         if row != 6:
@@ -214,18 +197,16 @@ def get_black_pawn_move():
     return pawns
 
 
-def get_magic_line_mask():
-    masks = {}
+def get_magic_line_mask() -> dict[int, int]:
+    masks = dict()
 
     for i in range(0, 64):
         row = get_row(i)
         col = get_col(i)
 
-        a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (63 - i)
+        a = 1 << (63 - i)
+        b = 1 << (63 - i)
 
-        b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (63 - i)
         for j in range(7 - row):
             a |= b >> (8 * j)
 
@@ -244,23 +225,22 @@ def get_magic_line_mask():
         for j in range(col):
             a |= b << (j)
 
+        # a &= ~ (1 << (63 - i))
+
         masks[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return masks
 
 
-def get_magic_diagonal_mask():
+def get_magic_diagonal_mask() -> dict[int, int]:
     masks = {}
 
     for i in range(0, 64):
         row = get_row(i)
         col = get_col(i)
 
-        a = 0b0000000000000000000000000000000000000000000000000000000000000000
-        a += 2 ** (i)
+        a = 1 << i
+        b = 1 << i
 
-        # Top Right
-        b = 0b0000000000000000000000000000000000000000000000000000000000000000
-        b += 2 ** (i)
         for j in range(1, 7 - row):
             offset = (8 * j + j)
             if get_row(i + offset) == row + j and get_col(i + offset) != 7:
@@ -289,6 +269,7 @@ def get_magic_diagonal_mask():
             offset = (8 * j - j)
             if get_row(i + offset) == get_row(i) + j and get_col(i + offset) != 0:
                 a |= b << offset
+        # a &= ~ (1 << i)
 
         masks[i] = a
     return masks
