@@ -50,17 +50,16 @@ class MoveGenerator:
                                                           masked_occup_to_rook_moves)[1]
 
     @staticmethod
-    def gen_non_pawn_moves() -> list[Move]:
-        return []
-
-    def gen_sliding_piece_attacks(self, move_hash_table: dict[int, dict[int, int]], magic: (int, int),
+    def gen_sliding_piece_attacks(move_hash_table: dict[int, dict[int, int]], magic: (int, int),
                                   mask_table: dict[int, int], piece_start_sqr: int, occupancy: int) -> int:
         # For the start square, get the corresponding mask and masked occupancy
         masked_occupancy = mask_table[piece_start_sqr] & occupancy
         # Magic hash the masked occupancy and find its result in the hash table to get the attacks
-        return move_hash_table[piece_start_sqr][magic_hash(masked_occupancy, magic[piece_start_sqr][0], magic[piece_start_sqr][1])]
+        return move_hash_table[piece_start_sqr][
+            magic_hash(masked_occupancy, magic[piece_start_sqr][0], magic[piece_start_sqr][1])]
 
-    def gen_non_sliding_piece_attacks(self, piece_move_table: dict[int, int], piece_start_sqr) -> int:
+    @staticmethod
+    def gen_non_sliding_piece_attacks(piece_move_table: dict[int, int], piece_start_sqr) -> int:
         return piece_move_table[piece_start_sqr]
 
     def gen_bishop_attacks(self, start_sqr: int, occupancy: int) -> int:
@@ -75,45 +74,90 @@ class MoveGenerator:
         return self.gen_bishop_attacks(start_sqr, occupancy) | self.gen_rook_attacks(start_sqr, occupancy)
 
     @staticmethod
-    def gen_piece_moves_from_attacks(start_sqr, attacks, piece_type: int, us_pieces: int, them_pawns: int,
-                                     them_knights: int, them_bishop: int,
-                                     them_rooks: int, them_queens: int, them_pieces: int) -> list[Move]:
+    def gen_piece_captures_from_attacks(start_sqr: int, attacks: int, piece_type: int, us_pieces: int, them_pawns: int,
+                                        them_knights: int, them_bishop: int,
+                                        them_rooks: int, them_queens: int, them_pieces: int, special_move_flag=0,
+                                        promotion_piece_type=0) -> list[Move]:
         result = []
         for end_sqr in extract_index(attacks & them_pawns):
-            result.append(Move(start_sqr, end_sqr, piece_type, 1, 1))
+            result.append(Move(start_sqr, end_sqr, piece_type, 1, 1, special_move_flag, promotion_piece_type))
         for end_sqr in extract_index(attacks & them_knights):
-            result.append(Move(start_sqr, end_sqr, piece_type, 1, 2))
+            result.append(Move(start_sqr, end_sqr, piece_type, 1, 2, special_move_flag, promotion_piece_type))
         for end_sqr in extract_index(attacks & them_bishop):
-            result.append(Move(start_sqr, end_sqr, piece_type, 1, 3))
+            result.append(Move(start_sqr, end_sqr, piece_type, 1, 3, special_move_flag, promotion_piece_type))
         for end_sqr in extract_index(attacks & them_rooks):
-            result.append(Move(start_sqr, end_sqr, piece_type, 1, 4))
+            result.append(Move(start_sqr, end_sqr, piece_type, 1, 4, special_move_flag, promotion_piece_type))
         for end_sqr in extract_index(attacks & them_queens):
-            result.append(Move(start_sqr, end_sqr, piece_type, 1, 5))
-        for end_sqr in extract_index((attacks & ~us_pieces) & (attacks & ~them_pieces)):
-            result.append(Move(start_sqr, end_sqr, piece_type, 0))
+            result.append(Move(start_sqr, end_sqr, piece_type, 1, 5, special_move_flag, promotion_piece_type))
         return result
 
-    def gen_piece_moves(self, piece_move_table: dict[int, int], piece_position: int, piece_type: int, us_pieces: int,
-                        them_pawns: int, them_knights: int, them_bishop: int, them_rooks: int, them_queens: int,
-                        them_pieces: int) -> list[Move]:
+    @staticmethod
+    def gen_piece_puremoves_from_attacks(start_sqr: int, attacks: int, piece_type: int, us_pieces: int, them_pawns: int,
+                                         them_knights: int, them_bishop: int,
+                                         them_rooks: int, them_queens: int, them_pieces: int, special_move_flag=0,
+                                         promotion_piece_type=0) -> list[Move]:
         result = []
-        for start_sqr in extract_index(piece_position):
+        for end_sqr in extract_index((attacks & ~us_pieces) & (attacks & ~them_pieces)):
+            result.append(Move(start_sqr, end_sqr, piece_type, 0, 0, special_move_flag, promotion_piece_type))
+        return result
+
+    def gen_piece_moves_from_attacks(self, start_sqr, attacks, piece_type: int, us_pieces: int, them_pawns: int,
+                                     them_knights: int, them_bishop: int,
+                                     them_rooks: int, them_queens: int, them_pieces: int, special_move_flag=0,
+                                     promotion_piece_type=0) -> list[Move]:
+        r1 = self.gen_piece_puremoves_from_attacks(start_sqr, attacks, piece_type, us_pieces, them_pawns, them_knights,
+                                                   them_bishop, them_rooks, them_queens, them_pieces, special_move_flag,
+                                                   promotion_piece_type)
+        r2 = self.gen_piece_captures_from_attacks(start_sqr, attacks, piece_type, us_pieces, them_pawns, them_knights,
+                                                  them_bishop, them_rooks, them_queens, them_pieces, special_move_flag,
+                                                  promotion_piece_type)
+        return r1 + r2
+
+    def gen_pieces_moves(self, piece_move_table: dict[int, int], pieces_position: int, piece_type: int, us_pieces: int,
+                         them_pawns: int, them_knights: int, them_bishop: int, them_rooks: int, them_queens: int,
+                         them_pieces: int) -> list[Move]:
+        result = []
+        for start_sqr in extract_index(pieces_position):
             attacks = piece_move_table[start_sqr]
-            result.extend(self.gen_piece_moves_from_attacks(start_sqr, attacks, piece_type, us_pieces, them_pawns,
+            result += self.gen_piece_moves_from_attacks(start_sqr, attacks, piece_type, us_pieces, them_pawns,
+                                                        them_knights, them_bishop, them_rooks, them_queens,
+                                                        them_pieces)
+        return result
+
+    def gen_pieces_captures(self, piece_capture_table: dict[int, int], pieces_position: int, piece_type: int,
+                            us_pieces: int,
+                            them_pawns: int, them_knights: int, them_bishop: int, them_rooks: int, them_queens: int,
+                            them_pieces: int, special_move_flag=0, promotion_piece_type=0) -> list[Move]:
+        result = []
+        for start_sqr in extract_index(pieces_position):
+            attacks = piece_capture_table[start_sqr]
+            result += self.gen_piece_captures_from_attacks(start_sqr, attacks, piece_type, us_pieces, them_pawns,
+                                                           them_knights, them_bishop, them_rooks, them_queens,
+                                                           them_pieces, special_move_flag, promotion_piece_type)
+        return result
+
+    def gen_pieces_puremoves(self, piece_move_table: dict[int, int], pieces_position: int, piece_type: int,
+                             us_pieces: int,
+                             them_pawns: int, them_knights: int, them_bishop: int, them_rooks: int, them_queens: int,
+                             them_pieces: int, special_move_flag=0, promotion_piece_type=0) -> list[Move]:
+        result = []
+        for start_sqr in extract_index(pieces_position):
+            attacks = piece_move_table[start_sqr]
+            result += self.gen_piece_puremoves_from_attacks(start_sqr, attacks, piece_type, us_pieces, them_pawns,
                                                             them_knights, them_bishop, them_rooks, them_queens,
-                                                            them_pieces))
+                                                            them_pieces, special_move_flag, promotion_piece_type)
         return result
 
     def gen_knight_moves(self, knight_position: int, us_pieces: int, them_pawns: int,
                          them_knights: int, them_bishop: int, them_rooks: int, them_queens: int, them_pieces: int) -> \
-    list[Move]:
-        return self.gen_piece_moves(self.knight_move_table, knight_position, 2, us_pieces, them_pawns,
-                                    them_knights, them_bishop, them_rooks, them_queens, them_pieces)
+            list[Move]:
+        return self.gen_pieces_moves(self.knight_move_table, knight_position, 2, us_pieces, them_pawns,
+                                     them_knights, them_bishop, them_rooks, them_queens, them_pieces)
 
     def gen_king_moves(self, king_position: int, us_pieces: int, them_pawns: int, them_knights: int,
                        them_bishop: int, them_rooks: int, them_queens: int, them_pieces: int) -> list[Move]:
-        return self.gen_piece_moves(self.knight_move_table, king_position, 6, us_pieces, them_pawns,
-                                    them_knights, them_bishop, them_rooks, them_queens, them_pieces)
+        return self.gen_pieces_moves(self.king_move_table, king_position, 6, us_pieces, them_pawns,
+                                     them_knights, them_bishop, them_rooks, them_queens, them_pieces)
 
     def gen_sliding_piece_moves(self, move_hash_table: dict[int, dict[int, int]], magic: (int, int),
                                 mask_table: dict[int, int], piece_position: int,
@@ -150,4 +194,25 @@ class MoveGenerator:
             result.extend(self.gen_piece_moves_from_attacks(start_sqr, attacks, 5, us_pieces, them_pawns,
                                                             them_knights, them_bishop, them_rooks, them_queens,
                                                             them_pieces))
+        return result
+
+    def gen_pawn_moves(self, pawn_position: int, us: bool, us_pieces: int, them_pawns: int, them_knights: int,
+                       them_bishop: int, them_rooks: int, them_queens: int, them_pieces: int) -> list[Move]:
+        result = []
+        pre_promotion_rank_mask = CONSTANTS.MASK_SEVENTH_RANK
+        if not us:
+            pre_promotion_rank_mask = CONSTANTS.MASK_SECOND_RANK
+        pre_promotion_pawns = pre_promotion_rank_mask & pawn_position
+        non_preprom_pawns = ~pre_promotion_rank_mask & pawn_position
+        capture_table = self.white_pawns_capture if us else self.black_pawns_capture
+        move_table = self.white_pawns_moves if us else self.black_pawns_moves
+        # Generating pawn captures that do not result in promotion
+        result += self.gen_pieces_captures(capture_table, non_preprom_pawns, 1, us_pieces, them_pawns, them_knights,
+                                           them_bishop, them_rooks, them_queens, them_pieces)
+        # Generating pawn captures and moves that result in promotion
+        for i in range(2, 6):
+            result += self.gen_pieces_captures(capture_table, pre_promotion_pawns, 1, us_pieces, them_pawns,
+                                               them_knights, them_bishop, them_rooks, them_queens, them_pieces, 3, i)
+            result += self.gen_pieces_puremoves(move_table, pre_promotion_pawns, 1, us_pieces, them_pawns, them_knights,
+                                                them_bishop, them_rooks, them_queens, them_pieces, 3, i)
         return result

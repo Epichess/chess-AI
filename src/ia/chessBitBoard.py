@@ -15,6 +15,7 @@ class Move:
 class Bitboard:
     pieces: dict[str, int]
     occupancy: int
+    side_pieces: dict[bool, int]
     white_pieces: int
     black_pieces: int
 
@@ -54,8 +55,9 @@ class Bitboard:
                 continue
             self.pieces[p] += 2 ** i
 
-        self.white_pieces = self.get_white_pieces()
-        self.black_pieces = self.get_black_pieces()
+        self.side_pieces = dict()
+        self.side_pieces[True] = self.get_white_pieces()
+        self.side_pieces[False] = self.get_black_pieces()
         self.occupancy = self.get_occupancy()
 
     def __str__(self):
@@ -111,17 +113,7 @@ class Bitboard:
         return black_pieces
 
     def get_occupancy(self):
-        return self.white_pieces | self.black_pieces
-
-    # Generate possible capture map. Inputs : a move_map (bitboard)
-    def get_capture_map(self, move_map: int, side: bool):
-        enemies = 'rnbqkp' if side else 'RNBQKP'
-
-        captures = 0
-        for e in list(enemies):
-            c = move_map & self.pieces[e]
-            captures |= c
-        return captures
+        return self.side_pieces[True] | self.side_pieces[False]
 
     # Get piece type from bitboard index
     def get_piece_by_index(self, index):
@@ -129,57 +121,6 @@ class Bitboard:
             if value & (2 ** index) > 0:
                 return key
         return 'None'
-
-    # Generate possible captures MoveInfo list
-    def get_captures(self, square, move_map, side, piece):
-        captures = self.get_capture_map(move_map, side)
-
-        squares = extract_index(captures)
-        cap = []
-        if (piece == 'P' and 56 > square > 47) or (piece == 'p' and 7 < square < 16):
-            for new_square in squares:
-                for l in ['N', 'R', 'B', 'Q']:
-                    cap.append(
-                        MoveInfo((square, new_square), MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece,
-                                 captured_piece=self.get_piece_by_index(new_square), promotion_piece=l))
-        # elif self.en_passant > -1 and ((piece == 'P' and square < 40 and square > 31) or (piece == 'p' and square > 24 and square < 32)):
-        #     b = 2 ** self.en_passant
-        #     r =
-        else:
-            for new_square in squares:
-                cap.append(MoveInfo((square, new_square), MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece,
-                                    captured_piece=self.get_piece_by_index(new_square)))
-        return cap
-
-    # Generate possible moves MoveInfo list
-    def get_moves(self, square, move_map, side, piece):
-        allies = 'rnbqkp' if not side else 'RNBQKP'
-        captures = self.get_capture_map(move_map, side)
-
-        moves = 0
-        for e in list(allies):
-            m = move_map & self.pieces[e]
-            moves |= m
-
-        squares = extract_index(move_map ^ moves ^ captures)
-        moves = []
-        if (piece == 'P' and 56 > square > 47) or (piece == 'p' and 7 < square < 16):
-            for new_square in squares:
-                for l in ['N', 'R', 'B', 'Q']:
-                    moves.append(MoveInfo(
-                        (square, new_square), MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece,
-                        promotion_piece=l))
-        else:
-            for new_square in squares:
-                moves.append(MoveInfo((square, new_square),
-                                      MoveInfo.Side.WHITE if side else MoveInfo.Side.BLACK, piece))
-        return moves
-
-
-# Display all formated moves
-def dump_moves(moves):
-    for key, value in moves.items():
-        print(str_bit_board(value))
 
 
 # Display bitboard in a more readable way

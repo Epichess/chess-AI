@@ -17,7 +17,7 @@ class Move:
         self.promotionPieceType = promotion_piece_type
 
     def __str__(self):
-        return f"Start square : {self.start}\nEnd square: {self.end}\nPiece Type: {self.pieceType}\nMove Type: {self.moveType}\nSpecial Flag: {self.specialMoveFlag}\n Promotion type: {self.promotionPieceType}\nCaptured Piece Type: {self.capturedPieceType}"
+        return f"Start square : {self.start}\nEnd square: {self.end}\nPiece Type: {self.pieceType}\nMove Type: {self.moveType}\nSpecial Flag: {self.specialMoveFlag}\nPromotion type: {self.promotionPieceType}\nCaptured Piece Type: {self.capturedPieceType}\n"
 
 
 '''
