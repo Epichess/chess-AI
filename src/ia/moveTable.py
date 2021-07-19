@@ -144,56 +144,34 @@ def gen_white_pawn_capture_table():
 
 
 # This function returns an initialized white pawn move table
-def gen_white_pawn_move_table():
-    pawns = {}
+def gen_white_pawn_move_table() -> dict[int, int]:
+    pawns = dict()
 
     for i in range(0, 64):
         row = get_row(i)
-        col = get_col(i)
 
-        a = 1 << (63 - i)
-        b = 1 << (63 - i)
-
-        ind = [8, 16]
-        if row != 1:
-            safe_remove(ind, [16])
         if row == 7:
-            safe_remove(ind, [8, 16])
+            pawns[i] = 0
+            continue
 
-        for n in ind:
-            if (n < 0):
-                a = a | (b << abs(n))
-            else:
-                a = a | (b >> n)
-        a -= 2 ** (63 - i)
-        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
+        pawns[i] = 1 << i + 8
+
     return pawns
 
 
-# This function returns an initialized black pawn move table
-def gen_black_pawn_move_table():
-    pawns = {}
+# This function returns an initialized black pawn move table, that does NOT include the first move 2 squares possibility
+def gen_black_pawn_move_table() -> dict[int, int]:
+    pawns = dict()
 
     for i in range(0, 64):
         row = get_row(i)
-        col = get_col(i)
 
-        a = 1 << (63 - i)
-        b = 1 << (63 - i)
+        if row == 0:
+            pawns[i] = 0
+            continue
 
-        ind = [-8, -16]
-        if row != 6:
-            safe_remove(ind, [-16])
-        if row == 7:
-            safe_remove(ind, [-8, -16])
+        pawns[i] = 1 << i - 8
 
-        for n in ind:
-            if (n < 0):
-                a = a | (b << abs(n))
-            else:
-                a = a | (b >> n)
-        a -= 2 ** (63 - i)
-        pawns[i] = int('0b' + f'{a:064b}'[::-1], 2)
     return pawns
 
 

@@ -197,11 +197,14 @@ class MoveGenerator:
         return result
 
     def gen_pawn_moves(self, pawn_position: int, us: bool, us_pieces: int, them_pawns: int, them_knights: int,
-                       them_bishop: int, them_rooks: int, them_queens: int, them_pieces: int) -> list[Move]:
+                       them_bishop: int, them_rooks: int, them_queens: int, them_pieces: int,
+                       can_en_passant: bool = False, en_passant_square: int = 0) -> list[Move]:
         result = []
         pre_promotion_rank_mask = CONSTANTS.MASK_SEVENTH_RANK
+        first_move_rank_mask = CONSTANTS.MASK_SECOND_RANK
         if not us:
             pre_promotion_rank_mask = CONSTANTS.MASK_SECOND_RANK
+            first_move_rank_mask = CONSTANTS.MASK_SEVENTH_RANK
         pre_promotion_pawns = pre_promotion_rank_mask & pawn_position
         non_preprom_pawns = ~pre_promotion_rank_mask & pawn_position
         capture_table = self.white_pawns_capture if us else self.black_pawns_capture
@@ -209,10 +212,17 @@ class MoveGenerator:
         # Generating pawn captures that do not result in promotion
         result += self.gen_pieces_captures(capture_table, non_preprom_pawns, 1, us_pieces, them_pawns, them_knights,
                                            them_bishop, them_rooks, them_queens, them_pieces)
+        # Generating pawn moves that do not result in promotion excluding double move on first pawn move
+        result += self.gen_pieces_puremoves(move_table, non_preprom_pawns, 1, us_pieces, them_pawns, them_knights,
+                                            them_bishop, them_rooks, them_queens, them_pieces)
         # Generating pawn captures and moves that result in promotion
         for i in range(2, 6):
             result += self.gen_pieces_captures(capture_table, pre_promotion_pawns, 1, us_pieces, them_pawns,
                                                them_knights, them_bishop, them_rooks, them_queens, them_pieces, 3, i)
             result += self.gen_pieces_puremoves(move_table, pre_promotion_pawns, 1, us_pieces, them_pawns, them_knights,
                                                 them_bishop, them_rooks, them_queens, them_pieces, 3, i)
+        # Generating en passant capture
+        if can_en_passant:
+            result += self.gen_pieces_captures(capture_table, pre_promotion_pawns, 1, us_pieces, 1 << en_passant_square,
+                                               0, 0, 0, 0, 0, 1)
         return result
