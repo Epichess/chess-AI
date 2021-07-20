@@ -1,23 +1,23 @@
 from chessBitBoard import Bitboard, str_bit_board
 from moveGenerator import MoveGenerator
 from magic_moves import *
-from bitboardMoveGenerator import BitBoardMoveGenerator
+from move import Move
 from moveTable import gen_black_pawn_move_table, gen_white_pawn_move_table
 
-# board = Bitboard('2r5/3P4/8/8/p1n1b3/1P3P2/8/8 w - - 0 1')
-# bmoveGenerator = BitBoardMoveGenerator()
-# print(board)
-#
-# moves = bmoveGenerator.gen_pawn_moves(board, True)
+board = Bitboard('3r4/8/8/1PpP4/8/8/8/3K4 w - - 0 1')
+board.board_info.can_en_passant = True
+board.board_info.en_passant_sqr = 42
+print(board)
+
+board.make_move(Move(35, 42, 1, 1, 1, 1))
+print(board)
+
+# moves = board.moveGenerator.gen_pawn_moves(board, True)
 # print('Number of moves: ', len(moves))
 # for m in moves:
 #     print(m)
 
 # moveGenerator = MoveGenerator()
-
-for i in range(64):
-    print(i)
-    print(str_bit_board(gen_white_pawn_move_table()[i]))
 
 def debug(board: Bitboard, sqr: int, moveGenerator: MoveGenerator):
     print(f'Board Occupancy: \n{str_bit_board(board.occupancy)}')

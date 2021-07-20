@@ -1,12 +1,91 @@
-from MoveInfo import MoveInfo
 from src.ia.bit_utils import extract_index
+from move import Move
+from boardInfo import BoardInfo
+import CONSTANTS
+from collections import deque
+from copy import copy
+from src.ia.moveGenerator import MoveGenerator
 
 
-class Move:
-    start: int
-    end: int
-    flag: int
-    promotedPiece: int
+class BitBoardMoveGenerator:
+    moveGenerator: MoveGenerator
+    coloredPieces: dict[bool, str]
+
+    def __init__(self):
+        self.moveGenerator = MoveGenerator()
+        self.coloredPieces = {
+            True: 'PNBRQK',
+            False: 'pnbrqk'
+        }
+
+    def gen_attacks(self, board, side: bool) -> int:
+        side_pieces_list = list(self.coloredPieces[side])
+        return self.moveGenerator.gen_attacks(side, board.pieces[side_pieces_list[0]],
+                                              board.pieces[side_pieces_list[1]],
+                                              board.pieces[side_pieces_list[2]], board.pieces[side_pieces_list[3]],
+                                              board.pieces[side_pieces_list[4]], board.pieces[side_pieces_list[5]],
+                                              board.occupancy)
+
+    def gen_bishop_moves(self, board, us: bool) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[us])
+        them_pieces_list = list(self.coloredPieces[not us])
+        us_pieces = board.side_pieces[us]
+        them_pieces = board.side_pieces[not us]
+        return self.moveGenerator.gen_bishop_move(board.pieces[us_pieces_list[2]], us_pieces,
+                                                  board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
+                                                  board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
+                                                  board.pieces[them_pieces_list[4]], them_pieces, board.occupancy)
+
+    def gen_rook_moves(self, board, us: bool) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[us])
+        them_pieces_list = list(self.coloredPieces[not us])
+        us_pieces = board.side_pieces[us]
+        them_pieces = board.side_pieces[not us]
+        return self.moveGenerator.gen_rook_move(board.pieces[us_pieces_list[3]], us_pieces,
+                                                board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
+                                                board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
+                                                board.pieces[them_pieces_list[4]], them_pieces, board.occupancy)
+
+    def gen_queen_moves(self, board, us: bool) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[us])
+        them_pieces_list = list(self.coloredPieces[not us])
+        us_pieces = board.side_pieces[us]
+        them_pieces = board.side_pieces[not us]
+        return self.moveGenerator.gen_queen_move(board.pieces[us_pieces_list[4]], us_pieces,
+                                                 board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
+                                                 board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
+                                                 board.pieces[them_pieces_list[4]], them_pieces, board.occupancy)
+
+    def gen_knight_moves(self, board, us: bool) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[us])
+        them_pieces_list = list(self.coloredPieces[not us])
+        us_pieces = board.side_pieces[us]
+        them_pieces = board.side_pieces[not us]
+        return self.moveGenerator.gen_knight_moves(board.pieces[us_pieces_list[1]], us_pieces,
+                                                   board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
+                                                   board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
+                                                   board.pieces[them_pieces_list[4]], them_pieces)
+
+    def gen_king_moves(self, board, us: bool) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[us])
+        them_pieces_list = list(self.coloredPieces[not us])
+        us_pieces = board.side_pieces[us]
+        them_pieces = board.side_pieces[not us]
+        return self.moveGenerator.gen_king_moves(board.pieces[us_pieces_list[5]], us_pieces,
+                                                 board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
+                                                 board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
+                                                 board.pieces[them_pieces_list[4]], them_pieces)
+
+    def gen_pawn_moves(self, board, us: bool) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[us])
+        them_pieces_list = list(self.coloredPieces[not us])
+        us_pieces = board.side_pieces[us]
+        them_pieces = board.side_pieces[not us]
+        return self.moveGenerator.gen_pawn_moves(board.pieces[us_pieces_list[0]], us, us_pieces,
+                                                 board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
+                                                 board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
+                                                 board.pieces[them_pieces_list[4]], them_pieces, board.occupancy,
+                                                 board.board_info.can_en_passant, board.board_info.en_passant_sqr)
 
 
 # IMPORTANT NOTE : Although we're using ints everywhere, there are different kind of them : int representing squares
@@ -14,17 +93,18 @@ class Move:
 # are maximum 2^12 - 1
 class Bitboard:
     pieces: dict[str, int]
-    occupancy: int
     side_pieces: dict[bool, int]
-    white_pieces: int
-    black_pieces: int
-
-    can_en_passant: bool
-    en_passant_sqr: int  # sqr
+    occupancy: int
+    moves: deque[Move]
+    prev_board_infos: deque[BoardInfo]
+    board_info: BoardInfo
+    moveGenerator: BitBoardMoveGenerator
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
-        self.can_en_passant = False
-        self.en_passant_square = 0
+        self.moves = deque()
+        self.prev_board_infos = deque()
+        self.board_info = BoardInfo(False, 0, True, True, True, True, 0, True)
+        self.moveGenerator = BitBoardMoveGenerator()
 
         # Pieces bitboard dictionnary
         self.pieces = {
@@ -100,6 +180,12 @@ class Bitboard:
                 tmp += 1
         return fen
 
+    def get_us_pieces(self, us):
+        if us:
+            return self.get_white_pieces()
+        else:
+            return self.get_black_pieces()
+
     def get_white_pieces(self):
         white_pieces = 0
         for s in 'RNBKQP':
@@ -121,6 +207,86 @@ class Bitboard:
             if value & (2 ** index) > 0:
                 return key
         return 'None'
+
+    def move_piece(self, start, end, us, piece_type):
+        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << start
+        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << end
+
+    def make_move(self, move: Move) -> bool:
+        # Updating move and state history stacks
+        self.moves.append(move)
+        self.prev_board_infos.append(copy(self.board_info))
+        # Declaring turn based variables
+        us = self.board_info.us
+        them = not self.board_info.us
+        # Moving the piece
+        self.move_piece(move.start, move.end, us, move.pieceType)
+        if move.moveType == 1:
+            self.pieces[CONSTANTS.COLORED_PIECES[them][move.capturedPieceType - 1]] &= ~ (0b1 << move.end)
+        if move.specialMoveFlag > 0:
+            # Case en passant capture
+            if move.specialMoveFlag == 1:
+                if us:
+                    self.pieces['p'] ^= 1 << (self.board_info.en_passant_sqr - 8)
+                else:
+                    self.pieces['P'] ^= 1 << (self.board_info.en_passant_sqr + 8)
+            # Case castling
+            if move.specialMoveFlag == 2:
+                pass
+            # Case promotion
+            if move.specialMoveFlag == 3:
+                self.pieces[CONSTANTS.COLORED_PIECES[us][0]] ^= 0b1 << move.end
+                self.pieces[CONSTANTS.COLORED_PIECES[us][move.promotionPieceType - 1]] ^= 0b1 << move.end
+            # Case double pawn push
+            if move.specialMoveFlag == 4:
+                self.board_info.can_en_passant = True
+                self.board_info.en_passant_sqr = move.start + 8 if us else move.start - 8
+        # Updating the half-move clock:
+        if move.moveType == 1 or move.pieceType == 1:
+            self.board_info.half_move_clock = 0
+        else:
+            self.board_info.half_move_clock += 1
+        # Updating en passant status if the move is not a double pawn push
+        if not move.specialMoveFlag == 4:
+            self.board_info.can_en_passant = False
+        # Updating board properties
+        self.side_pieces[us] = self.get_us_pieces(us)
+        self.side_pieces[them] = self.get_us_pieces(them)
+        self.occupancy = self.get_occupancy()
+        # Updating who's turn to move it is
+        self.board_info.us = not self.board_info.us
+        # Checking that the board is legal and unmaking if it isn't
+        them_attacks = self.moveGenerator.gen_attacks(self, them)
+        if them_attacks & self.pieces[CONSTANTS.COLORED_PIECES[us][5]] > 0:
+            self.unmake_move()
+            return False
+        return True
+
+    def unmove_piece(self, start, end, us, piece_type):
+        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] &= ~ (0b1 << end)
+        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] |= 0b1 << start
+
+    def create_piece(self, square, piece_type, color):
+        self.pieces[CONSTANTS.COLORED_PIECES[color][piece_type - 1]] |= 1 << square
+
+    def unmake_move(self):
+        move = self.moves.pop()
+        board_info = self.prev_board_infos.pop()
+        self.board_info = board_info
+        us = self.board_info.us
+        them = not self.board_info.us
+        self.unmove_piece(move.start, move.end, us, move.pieceType)
+        if (move.specialMoveFlag == 0 or move.specialMoveFlag == 3) and move.moveType == 1:
+            self.create_piece(move.end, move.capturedPieceType, them)
+        elif move.specialMoveFlag == 1:
+            if us:
+                self.create_piece(move.end - 8, 1, them)
+            else:
+                self.create_piece(move.end + 8, 1, them)
+        elif move.specialMoveFlag == 2:
+            pass
+        elif move.specialMoveFlag == 3:
+            self.pieces[CONSTANTS.COLORED_PIECES[us][move.promotionPieceType - 1]] ^= 0b1 << move.end
 
 
 # Display bitboard in a more readable way

@@ -6,7 +6,6 @@ from magic_moves import gen_bishop_blockers, gen_rook_blockers, masked_occup_to_
 import CONSTANTS
 from move import Move
 from bit_utils import extract_index
-from chessBitBoard import str_bit_board
 from magic_moves import magic_hash
 
 
@@ -72,6 +71,27 @@ class MoveGenerator:
 
     def gen_queen_attacks(self, start_sqr: int, occupancy: int) -> int:
         return self.gen_bishop_attacks(start_sqr, occupancy) | self.gen_rook_attacks(start_sqr, occupancy)
+
+    def gen_attacks(self, side: bool, pawns: int, knights: int, bishops: int, rooks: int, queens: int, king: int,
+                    occupancy: int) -> int:
+        attacks = 0
+        if side:
+            for square in extract_index(pawns):
+                attacks |= self.white_pawns_capture[square]
+        else:
+            for square in extract_index(pawns):
+                attacks |= self.black_pawns_capture[square]
+        for square in extract_index(knights):
+            attacks |= self.gen_non_sliding_piece_attacks(self.knight_move_table, square)
+        for square in extract_index(king):
+            attacks |= self.gen_non_sliding_piece_attacks(self.king_move_table, square)
+        for square in extract_index(bishops):
+            attacks |= self.gen_bishop_attacks(square, occupancy)
+        for square in extract_index(rooks):
+            attacks |= self.gen_rook_attacks(square, occupancy)
+        for square in extract_index(queens):
+            attacks |= self.gen_queen_attacks(square, occupancy)
+        return attacks
 
     @staticmethod
     def gen_piece_captures_from_attacks(start_sqr: int, attacks: int, piece_type: int, us_pieces: int, them_pawns: int,
@@ -197,18 +217,25 @@ class MoveGenerator:
         return result
 
     def gen_pawn_moves(self, pawn_position: int, us: bool, us_pieces: int, them_pawns: int, them_knights: int,
-                       them_bishop: int, them_rooks: int, them_queens: int, them_pieces: int,
+                       them_bishop: int, them_rooks: int, them_queens: int, them_pieces: int, occupancy: int,
                        can_en_passant: bool = False, en_passant_square: int = 0) -> list[Move]:
         result = []
-        pre_promotion_rank_mask = CONSTANTS.MASK_SEVENTH_RANK
-        first_move_rank_mask = CONSTANTS.MASK_SECOND_RANK
-        if not us:
-            pre_promotion_rank_mask = CONSTANTS.MASK_SECOND_RANK
-            first_move_rank_mask = CONSTANTS.MASK_SEVENTH_RANK
+        pre_promotion_rank_mask = CONSTANTS.MASK_SEVENTH_RANK if us else CONSTANTS.MASK_SECOND_RANK
+        double_move_rank_mask = CONSTANTS.MASK_SECOND_RANK if us else CONSTANTS.MASK_SEVENTH_RANK
         pre_promotion_pawns = pre_promotion_rank_mask & pawn_position
         non_preprom_pawns = ~pre_promotion_rank_mask & pawn_position
+        double_move_pawns = double_move_rank_mask & pawn_position
         capture_table = self.white_pawns_capture if us else self.black_pawns_capture
         move_table = self.white_pawns_moves if us else self.black_pawns_moves
+        # Generating double moves for first row pawns
+        if us:
+            for i in extract_index(double_move_pawns):
+                if occupancy & (1 << i + 8 | 1 << i + 16) == 0:
+                    result.append(Move(i, i + 16, 1, 0, 0, 4))
+        else:
+            for i in extract_index(double_move_pawns):
+                if occupancy & (1 << i - 8 | 1 << i - 16) == 0:
+                    result.append(Move(i, i - 16, 1, 0, 0, 4))
         # Generating pawn captures that do not result in promotion
         result += self.gen_pieces_captures(capture_table, non_preprom_pawns, 1, us_pieces, them_pawns, them_knights,
                                            them_bishop, them_rooks, them_queens, them_pieces)
@@ -223,6 +250,13 @@ class MoveGenerator:
                                                 them_bishop, them_rooks, them_queens, them_pieces, 3, i)
         # Generating en passant capture
         if can_en_passant:
-            result += self.gen_pieces_captures(capture_table, pre_promotion_pawns, 1, us_pieces, 1 << en_passant_square,
+            result += self.gen_pieces_captures(capture_table, non_preprom_pawns, 1, us_pieces, 1 << en_passant_square,
                                                0, 0, 0, 0, 0, 1)
         return result
+
+    def gen_castle_moves(self, us, king_position, rook_position, occupancy, can_king_side_castle, can_queen_side_castle,
+                         them_attacks):
+        queen_side_castle_attack_mask = 0b00011100 if us else 0b00011100 << 56
+        king_side_castle_attack_mask = 0b01110000 if us else 0b01110000 << 56
+        queen_side_castle_empty_mask = 0b00001110 if us else 0b00001110 << 56
+        king_side_castle_empty_mask = 0b0110 if us else 0b0110 << 56

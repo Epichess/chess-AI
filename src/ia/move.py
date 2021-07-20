@@ -6,8 +6,10 @@ class Move:
     capturedPieceType: int  # piece type
     specialMoveFlag: int  # special move flag
     promotionPieceType: int  # piece type
+    castleSide: bool  # castle side
 
-    def __init__(self, start: int, end: int, piece_type: int, move_type: int, captured_piece_type: int = 0, special_move_flag: int = 0, promotion_piece_type: int = 0):
+    def __init__(self, start: int, end: int, piece_type: int, move_type: int, captured_piece_type: int = 0,
+                 special_move_flag: int = 0, promotion_piece_type: int = 0, castle_side: bool = True):
         self.start = start
         self.end = end
         self.moveType = move_type
@@ -15,6 +17,7 @@ class Move:
         self.capturedPieceType = captured_piece_type
         self.specialMoveFlag = special_move_flag
         self.promotionPieceType = promotion_piece_type
+        self.castleSide = castle_side
 
     def __str__(self):
         return f"Start square : {self.start}\nEnd square: {self.end}\nPiece Type: {self.pieceType}\nMove Type: {self.moveType}\nSpecial Flag: {self.specialMoveFlag}\nPromotion type: {self.promotionPieceType}\nCaptured Piece Type: {self.capturedPieceType}\n"
@@ -33,6 +36,7 @@ Special Move Flags:
 1 - En Passant
 2 - Castling
 3 - Promotion
+4 - Double Pawn Move
 '''
 
 
@@ -45,4 +49,10 @@ Piece Types:
 4 - Rook
 5 - Queen
 6 - King
+'''
+
+'''
+Castle Side:
+True - King Side
+False - Queen Side
 '''
