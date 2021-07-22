@@ -157,6 +157,11 @@ class Bitboard:
                 continue
             self.pieces[p] += 2 ** i
 
+        if groups[1] == 'w':
+            self.board_info.us = True
+        else:
+            self.board_info.us = False
+
         self.side_pieces = dict()
         self.side_pieces[True] = self.get_white_pieces()
         self.side_pieces[False] = self.get_black_pieces()
