@@ -19,6 +19,27 @@ class Move:
         self.promotionPieceType = promotion_piece_type
         self.castleSide = castle_side
 
+    def __eq__(self, other):
+        if not isinstance(other, Move):
+            return False
+        if self.start is not other.start:
+            return False
+        if self.end is not other.end:
+            return False
+        if self.moveType is not other.moveType:
+            return False
+        if self.specialMoveFlag is not other.specialMoveFlag:
+            return False
+        if self.pieceType is not other.pieceType:
+            return False
+        if self.castleSide is not other.castleSide:
+            return False
+        if self.capturedPieceType is not other.capturedPieceType:
+            return False
+        if self.promotionPieceType:
+            return False
+        return True
+
     def __str__(self):
         return f"Start square : {self.start}\nEnd square: {self.end}\nPiece Type: {self.pieceType}\nMove Type: {self.moveType}\nSpecial Flag: {self.specialMoveFlag}\nPromotion type: {self.promotionPieceType}\nCaptured Piece Type: {self.capturedPieceType}\n"
 

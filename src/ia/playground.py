@@ -1,16 +1,26 @@
-from chessBitBoard import Bitboard, str_bit_board
+from chessBitBoard import Bitboard, str_bit_board, BitBoardMoveGenerator
 from moveGenerator import MoveGenerator
 from magic_moves import *
 from move import Move
 from moveTable import gen_black_pawn_move_table, gen_white_pawn_move_table
+from search import evaluate
+from gameChecker import GameChecker
 
-board = Bitboard('3r4/8/8/1PpP4/8/8/8/3K4 w - - 0 1')
-board.board_info.can_en_passant = True
-board.board_info.en_passant_sqr = 42
-print(board)
+board = Bitboard('6k1/8/3P2K1/8/8/8/8/8 w - - 0 1')
+moveGenerator = BitBoardMoveGenerator()
 
-board.make_move(Move(35, 42, 1, 1, 1, 1))
+game_checker = GameChecker('6k1/8/3P2K1/8/8/8/8/8 w - - 0 1')
+
+moves = moveGenerator.gen_legal_moves(board)
 print(board)
+print(len(moves))
+for m in moves:
+    print(m)
+    board.make_move(m)
+    print(board)
+    board.unmake_move()
+
+print(game_checker.checkGameIsOver())
 
 # moves = board.moveGenerator.gen_pawn_moves(board, True)
 # print('Number of moves: ', len(moves))

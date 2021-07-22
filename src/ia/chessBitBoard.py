@@ -1,10 +1,11 @@
+from __future__ import annotations
 from src.ia.bit_utils import extract_index
 from move import Move
 from boardInfo import BoardInfo
 import CONSTANTS
 from collections import deque
 from copy import copy
-from src.ia.moveGenerator import MoveGenerator
+from src.ia.moveGenerator import MoveGenerator, MOVE_GENERATOR
 
 
 class BitBoardMoveGenerator:
@@ -12,13 +13,13 @@ class BitBoardMoveGenerator:
     coloredPieces: dict[bool, str]
 
     def __init__(self):
-        self.moveGenerator = MoveGenerator()
+        self.moveGenerator = MOVE_GENERATOR
         self.coloredPieces = {
             True: 'PNBRQK',
             False: 'pnbrqk'
         }
 
-    def gen_attacks(self, board, side: bool) -> int:
+    def gen_attacks(self, board: Bitboard, side: bool) -> int:
         side_pieces_list = list(self.coloredPieces[side])
         return self.moveGenerator.gen_attacks(side, board.pieces[side_pieces_list[0]],
                                               board.pieces[side_pieces_list[1]],
@@ -26,62 +27,82 @@ class BitBoardMoveGenerator:
                                               board.pieces[side_pieces_list[4]], board.pieces[side_pieces_list[5]],
                                               board.occupancy)
 
-    def gen_bishop_moves(self, board, us: bool) -> list[Move]:
-        us_pieces_list = list(self.coloredPieces[us])
-        them_pieces_list = list(self.coloredPieces[not us])
-        us_pieces = board.side_pieces[us]
-        them_pieces = board.side_pieces[not us]
+    def gen_moves(self, board: Bitboard) -> list[Move]:
+        result = []
+        result += self.gen_pawn_moves(board)
+        result += self.gen_knight_moves(board)
+        result += self.gen_bishop_moves(board)
+        result += self.gen_queen_moves(board)
+        result += self.gen_king_moves(board)
+        result += self.gen_rook_moves(board)
+        return result
+
+    def gen_legal_moves(self, board: Bitboard):
+        # DO NOT USE THIS METHOD WHILE SEARCHING
+        result = []
+        moves = self.gen_moves(board)
+        for move in moves:
+            if board.make_move(move):
+                result.append(move)
+                board.unmake_move()
+        return result
+
+    def gen_bishop_moves(self, board) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[board.board_info.us])
+        them_pieces_list = list(self.coloredPieces[not board.board_info.us])
+        us_pieces = board.side_pieces[board.board_info.us]
+        them_pieces = board.side_pieces[not board.board_info.us]
         return self.moveGenerator.gen_bishop_move(board.pieces[us_pieces_list[2]], us_pieces,
                                                   board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
                                                   board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
                                                   board.pieces[them_pieces_list[4]], them_pieces, board.occupancy)
 
-    def gen_rook_moves(self, board, us: bool) -> list[Move]:
-        us_pieces_list = list(self.coloredPieces[us])
-        them_pieces_list = list(self.coloredPieces[not us])
-        us_pieces = board.side_pieces[us]
-        them_pieces = board.side_pieces[not us]
+    def gen_rook_moves(self, board) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[board.board_info.us])
+        them_pieces_list = list(self.coloredPieces[not board.board_info.us])
+        us_pieces = board.side_pieces[board.board_info.us]
+        them_pieces = board.side_pieces[not board.board_info.us]
         return self.moveGenerator.gen_rook_move(board.pieces[us_pieces_list[3]], us_pieces,
                                                 board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
                                                 board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
                                                 board.pieces[them_pieces_list[4]], them_pieces, board.occupancy)
 
-    def gen_queen_moves(self, board, us: bool) -> list[Move]:
-        us_pieces_list = list(self.coloredPieces[us])
-        them_pieces_list = list(self.coloredPieces[not us])
-        us_pieces = board.side_pieces[us]
-        them_pieces = board.side_pieces[not us]
+    def gen_queen_moves(self, board) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[board.board_info.us])
+        them_pieces_list = list(self.coloredPieces[not board.board_info.us])
+        us_pieces = board.side_pieces[board.board_info.us]
+        them_pieces = board.side_pieces[not board.board_info.us]
         return self.moveGenerator.gen_queen_move(board.pieces[us_pieces_list[4]], us_pieces,
                                                  board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
                                                  board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
                                                  board.pieces[them_pieces_list[4]], them_pieces, board.occupancy)
 
-    def gen_knight_moves(self, board, us: bool) -> list[Move]:
-        us_pieces_list = list(self.coloredPieces[us])
-        them_pieces_list = list(self.coloredPieces[not us])
-        us_pieces = board.side_pieces[us]
-        them_pieces = board.side_pieces[not us]
+    def gen_knight_moves(self, board) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[board.board_info.us])
+        them_pieces_list = list(self.coloredPieces[not board.board_info.us])
+        us_pieces = board.side_pieces[board.board_info.us]
+        them_pieces = board.side_pieces[not board.board_info.us]
         return self.moveGenerator.gen_knight_moves(board.pieces[us_pieces_list[1]], us_pieces,
                                                    board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
                                                    board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
                                                    board.pieces[them_pieces_list[4]], them_pieces)
 
-    def gen_king_moves(self, board, us: bool) -> list[Move]:
-        us_pieces_list = list(self.coloredPieces[us])
-        them_pieces_list = list(self.coloredPieces[not us])
-        us_pieces = board.side_pieces[us]
-        them_pieces = board.side_pieces[not us]
+    def gen_king_moves(self, board) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[board.board_info.us])
+        them_pieces_list = list(self.coloredPieces[not board.board_info.us])
+        us_pieces = board.side_pieces[board.board_info.us]
+        them_pieces = board.side_pieces[not board.board_info.us]
         return self.moveGenerator.gen_king_moves(board.pieces[us_pieces_list[5]], us_pieces,
                                                  board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
                                                  board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
                                                  board.pieces[them_pieces_list[4]], them_pieces)
 
-    def gen_pawn_moves(self, board, us: bool) -> list[Move]:
-        us_pieces_list = list(self.coloredPieces[us])
-        them_pieces_list = list(self.coloredPieces[not us])
-        us_pieces = board.side_pieces[us]
-        them_pieces = board.side_pieces[not us]
-        return self.moveGenerator.gen_pawn_moves(board.pieces[us_pieces_list[0]], us, us_pieces,
+    def gen_pawn_moves(self, board) -> list[Move]:
+        us_pieces_list = list(self.coloredPieces[board.board_info.us])
+        them_pieces_list = list(self.coloredPieces[not board.board_info.us])
+        us_pieces = board.side_pieces[board.board_info.us]
+        them_pieces = board.side_pieces[not board.board_info.us]
+        return self.moveGenerator.gen_pawn_moves(board.pieces[us_pieces_list[0]], board.board_info.us, us_pieces,
                                                  board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
                                                  board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
                                                  board.pieces[them_pieces_list[4]], them_pieces, board.occupancy,
@@ -124,7 +145,8 @@ class Bitboard:
 
         # Fill the bitboard dictionnary
         i = 64
-        rev = fen.split(' ')[0].split('/')
+        groups = fen.split(' ')
+        rev = groups[0].split('/')
         res = []
         for r in rev:
             res.append(r[::-1])

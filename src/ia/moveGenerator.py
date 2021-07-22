@@ -202,7 +202,7 @@ class MoveGenerator:
 
     def gen_rook_move(self, rook_position, us_pieces: int, them_pawns: int, them_knights: int, them_bishop: int,
                       them_rooks: int, them_queens: int, them_pieces: int, occupancy: int):
-        return self.gen_sliding_piece_moves(self.rook_hash_table, self.rook_magic, self.magic_diagonal_masks,
+        return self.gen_sliding_piece_moves(self.rook_hash_table, self.rook_magic, self.magic_line_masks,
                                             rook_position, 3, us_pieces, them_pawns, them_knights, them_bishop,
                                             them_rooks, them_queens, them_pieces, occupancy)
 
@@ -260,3 +260,6 @@ class MoveGenerator:
         king_side_castle_attack_mask = 0b01110000 if us else 0b01110000 << 56
         queen_side_castle_empty_mask = 0b00001110 if us else 0b00001110 << 56
         king_side_castle_empty_mask = 0b0110 if us else 0b0110 << 56
+
+
+MOVE_GENERATOR = MoveGenerator()
