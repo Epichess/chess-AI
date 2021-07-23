@@ -124,7 +124,7 @@ class Bitboard:
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
         self.moves = deque()
         self.prev_board_infos = deque()
-        self.board_info = BoardInfo(False, 0, True, True, True, True, 0, True)
+        self.board_info = BoardInfo(False, 0, False, False, False, False, 0, True)
         self.moveGenerator = BitBoardMoveGenerator()
 
         # Pieces bitboard dictionnary
@@ -161,6 +161,15 @@ class Bitboard:
             self.board_info.us = True
         else:
             self.board_info.us = False
+
+        if 'K' in groups[2]:
+            self.board_info.can_white_king_side_castle = True
+        if 'Q' in groups[2]:
+            self.board_info.can_white_queen_side_castle = True
+        if 'k' in groups[2]:
+            self.board_info.can_black_king_side_castle = True
+        if 'q' in groups[2]:
+            self.board_info.can_black_queen_side_castle = True
 
         self.side_pieces = dict()
         self.side_pieces[True] = self.get_white_pieces()

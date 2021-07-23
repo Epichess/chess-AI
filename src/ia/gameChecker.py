@@ -20,4 +20,3 @@ class GameChecker:
         if len(self.moveGenerator.gen_legal_moves(self.board)) == 0:
             return True
         return False
-
