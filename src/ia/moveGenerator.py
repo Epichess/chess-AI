@@ -254,12 +254,19 @@ class MoveGenerator:
                                                0, 0, 0, 0, 0, 1)
         return result
 
-    def gen_castle_moves(self, us, king_position, rook_position, occupancy, can_king_side_castle, can_queen_side_castle,
-                         them_attacks):
+    def gen_castle_moves(self, us, king_position, occupancy, can_king_side_castle, can_queen_side_castle,
+                         them_attacks) -> list[Move]:
+        result = []
         queen_side_castle_attack_mask = 0b00011100 if us else 0b00011100 << 56
         king_side_castle_attack_mask = 0b01110000 if us else 0b01110000 << 56
         queen_side_castle_empty_mask = 0b00001110 if us else 0b00001110 << 56
         king_side_castle_empty_mask = 0b0110 if us else 0b0110 << 56
+        king_sqr = extract_index(king_position)[0]
+        if can_queen_side_castle and queen_side_castle_attack_mask & them_attacks == 0 and queen_side_castle_empty_mask & occupancy == 0:
+            result.append(Move(king_sqr, king_sqr - 2, 6, 0, 0, 2, 0, False))
+        if can_king_side_castle and king_side_castle_attack_mask & them_attacks == 0 and king_side_castle_empty_mask & occupancy == 0:
+            result.append(Move(king_sqr, king_sqr + 2, 6, 0, 0, 2, True))
+        return result
 
 
 MOVE_GENERATOR = MoveGenerator()

@@ -88,14 +88,24 @@ class BitBoardMoveGenerator:
                                                    board.pieces[them_pieces_list[4]], them_pieces)
 
     def gen_king_moves(self, board) -> list[Move]:
-        us_pieces_list = list(self.coloredPieces[board.board_info.us])
-        them_pieces_list = list(self.coloredPieces[not board.board_info.us])
+        result = []
+        us = board.board_info.us
+        us_pieces_list = list(self.coloredPieces[us])
+        them_pieces_list = list(self.coloredPieces[not us])
         us_pieces = board.side_pieces[board.board_info.us]
         them_pieces = board.side_pieces[not board.board_info.us]
-        return self.moveGenerator.gen_king_moves(board.pieces[us_pieces_list[5]], us_pieces,
-                                                 board.pieces[them_pieces_list[0]], board.pieces[them_pieces_list[1]],
-                                                 board.pieces[them_pieces_list[2]], board.pieces[them_pieces_list[3]],
-                                                 board.pieces[them_pieces_list[4]], them_pieces)
+        can_queen_side_castle = board.board_info.can_white_king_side_castle if us else board.board_info.can_black_queen_side_castle
+        can_king_side_castle = board.board_info.can_white_king_side_castle if us else board.board_info.can_black_king_side_castle
+        result += self.moveGenerator.gen_king_moves(board.pieces[us_pieces_list[5]], us_pieces,
+                                                    board.pieces[them_pieces_list[0]],
+                                                    board.pieces[them_pieces_list[1]],
+                                                    board.pieces[them_pieces_list[2]],
+                                                    board.pieces[them_pieces_list[3]],
+                                                    board.pieces[them_pieces_list[4]], them_pieces)
+        result += self.moveGenerator.gen_castle_moves(board.board_info.us, board.pieces[us_pieces_list[5]],
+                                                      board.occupancy, can_king_side_castle, can_queen_side_castle,
+                                                      board.moveGenerator.gen_attacks(board, not us))
+        return result
 
     def gen_pawn_moves(self, board) -> list[Move]:
         us_pieces_list = list(self.coloredPieces[board.board_info.us])
