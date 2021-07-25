@@ -94,7 +94,7 @@ class BitBoardMoveGenerator:
         them_pieces_list = list(self.coloredPieces[not us])
         us_pieces = board.side_pieces[board.board_info.us]
         them_pieces = board.side_pieces[not board.board_info.us]
-        can_queen_side_castle = board.board_info.can_white_king_side_castle if us else board.board_info.can_black_queen_side_castle
+        can_queen_side_castle = board.board_info.can_white_queen_side_castle if us else board.board_info.can_black_queen_side_castle
         can_king_side_castle = board.board_info.can_white_king_side_castle if us else board.board_info.can_black_king_side_castle
         result += self.moveGenerator.gen_king_moves(board.pieces[us_pieces_list[5]], us_pieces,
                                                     board.pieces[them_pieces_list[0]],
@@ -254,7 +254,7 @@ class Bitboard:
                 return key
         return 'None'
 
-    def move_piece(self, start, end, us, piece_type):
+    def move_piece(self, start: int, end: int, us: bool, piece_type: int):
         self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << start
         self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << end
 
@@ -278,7 +278,17 @@ class Bitboard:
                     self.pieces['P'] ^= 1 << (self.board_info.en_passant_sqr + 8)
             # Case castling
             if move.specialMoveFlag == 2:
-                pass
+                # Moving the rook (king already moved)
+                if us:
+                    if move.castleSide:
+                        self.move_piece(7, 5, us, 4)
+                    else:
+                        self.move_piece(0, 3, us, 4)
+                else:
+                    if move.castleSide:
+                        self.move_piece(63, 61, us, 4)
+                    else:
+                        self.move_piece(56, 59, us, 4)
             # Case promotion
             if move.specialMoveFlag == 3:
                 self.pieces[CONSTANTS.COLORED_PIECES[us][0]] ^= 0b1 << move.end
@@ -343,13 +353,27 @@ class Bitboard:
         self.unmove_piece(move.start, move.end, us, move.pieceType)
         if (move.specialMoveFlag == 0 or move.specialMoveFlag == 3) and move.moveType == 1:
             self.create_piece(move.end, move.capturedPieceType, them)
+        # Case en passant
         elif move.specialMoveFlag == 1:
             if us:
                 self.create_piece(move.end - 8, 1, them)
             else:
                 self.create_piece(move.end + 8, 1, them)
+        # Case castling
         elif move.specialMoveFlag == 2:
-            pass
+            if move.specialMoveFlag == 2:
+                # Moving the rook (king already moved)
+                if us:
+                    if move.castleSide:
+                        self.unmove_piece(7, 5, us, 4)
+                    else:
+                        self.unmove_piece(0, 3, us, 4)
+                else:
+                    if move.castleSide:
+                        self.unmove_piece(63, 61, us, 4)
+                    else:
+                        self.unmove_piece(56, 59, us, 4)
+        # Case promotion
         elif move.specialMoveFlag == 3:
             self.pieces[CONSTANTS.COLORED_PIECES[us][move.promotionPieceType - 1]] ^= 0b1 << move.end
 

@@ -6,12 +6,16 @@ from moveTable import gen_black_pawn_move_table, gen_white_pawn_move_table
 from search import evaluate
 from gameChecker import GameChecker
 
-board = Bitboard('6k1/8/3P2K1/8/8/8/8/8 w - - 0 1')
-moveGenerator = BitBoardMoveGenerator()
+board = Bitboard('4k2r/8/8/8/8/8/8/R3K3 w Qk - 0 1')
 
-game_checker = GameChecker('6k1/8/3P2K1/8/8/8/8/8 w - - 0 1')
+print('black king castle: ', board.board_info.can_black_king_side_castle)
+print('black queen castle:', board.board_info.can_black_queen_side_castle)
+print('white king castle: ', board.board_info.can_white_king_side_castle)
+print('white queen castle: ', board.board_info.can_white_queen_side_castle)
 
-moves = moveGenerator.gen_legal_moves(board)
+# game_checker = GameChecker('6k1/8/3P2K1/8/8/8/8/8 w - - 0 1')
+
+moves = board.moveGenerator.gen_king_moves(board)
 print(board)
 print(len(moves))
 for m in moves:
@@ -20,7 +24,6 @@ for m in moves:
     print(board)
     board.unmake_move()
 
-print(game_checker.checkGameIsOver())
 
 # moves = board.moveGenerator.gen_pawn_moves(board, True)
 # print('Number of moves: ', len(moves))
