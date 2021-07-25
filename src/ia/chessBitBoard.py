@@ -285,6 +285,25 @@ class Bitboard:
         # Updating en passant status if the move is not a double pawn push
         if not move.specialMoveFlag == 4:
             self.board_info.can_en_passant = False
+        # Updating castling rights
+        if move.pieceType == 6:
+            if us:
+                self.board_info.can_white_queen_side_castle = False
+                self.board_info.can_white_king_side_castle = False
+            else:
+                self.board_info.can_black_king_side_castle = False
+                self.board_info.can_black_queen_side_castle = False
+        if move.pieceType == 4:
+            if us:
+                if self.pieces['R'] & 1 == 0:
+                    self.board_info.can_white_queen_side_castle = False
+                if self.pieces['R'] & 1 << 7 == 0:
+                    self.board_info.can_white_king_side_castle = False
+            else:
+                if self.pieces['r'] & 1 << 56 == 0:
+                    self.board_info.can_black_queen_side_castle = False
+                if self.pieces['r'] & 1 << 63 == 0:
+                    self.board_info.can_black_king_side_castle = False
         # Updating board properties
         self.side_pieces[us] = self.get_us_pieces(us)
         self.side_pieces[them] = self.get_us_pieces(them)
