@@ -203,7 +203,7 @@ class MoveGenerator:
     def gen_rook_move(self, rook_position, us_pieces: int, them_pawns: int, them_knights: int, them_bishop: int,
                       them_rooks: int, them_queens: int, them_pieces: int, occupancy: int):
         return self.gen_sliding_piece_moves(self.rook_hash_table, self.rook_magic, self.magic_line_masks,
-                                            rook_position, 3, us_pieces, them_pawns, them_knights, them_bishop,
+                                            rook_position, 4, us_pieces, them_pawns, them_knights, them_bishop,
                                             them_rooks, them_queens, them_pieces, occupancy)
 
     def gen_queen_move(self, queen_position, us_pieces: int, them_pawns: int, them_knights: int, them_bishop: int,

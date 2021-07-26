@@ -43,13 +43,18 @@ class Move:
     def __str__(self):
         return f"Start square : {self.start}\nEnd square: {self.end}\nPiece Type: {self.pieceType}\nMove Type: {self.moveType}\nSpecial Flag: {self.specialMoveFlag}\nPromotion type: {self.promotionPieceType}\nCaptured Piece Type: {self.capturedPieceType}\n"
 
+    def __gt__(self, other):
+        return self.moveType > other.moveType
+
+    def __lt__(self, other):
+        return self.moveType <= other.moveType
+
 
 '''
 Move Types:
 0 - Move
 1 - Capture
 '''
-
 
 '''
 Special Move Flags:
@@ -59,7 +64,6 @@ Special Move Flags:
 3 - Promotion
 4 - Double Pawn Move
 '''
-
 
 '''
 Piece Types: 
