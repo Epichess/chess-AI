@@ -6,6 +6,7 @@ import CONSTANTS
 from collections import deque
 from copy import copy
 from src.ia.moveGenerator import MoveGenerator, MOVE_GENERATOR
+from zobrist import ZobristInformations
 
 
 class BitBoardMoveGenerator:
@@ -130,6 +131,7 @@ class Bitboard:
     prev_board_infos: deque[BoardInfo]
     board_info: BoardInfo
     moveGenerator: BitBoardMoveGenerator
+    hash: int
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
         self.moves = deque()
@@ -185,6 +187,7 @@ class Bitboard:
         self.side_pieces[True] = self.get_white_pieces()
         self.side_pieces[False] = self.get_black_pieces()
         self.occupancy = self.get_occupancy()
+        self.hash = hash(self.zobrist_from_board())
 
     def __str__(self):
         line_list = []
@@ -255,10 +258,18 @@ class Bitboard:
         return 'None'
 
     def move_piece(self, start: int, end: int, us: bool, piece_type: int):
+        # Move piece and update zobrist hash
         self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << start
         self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << end
+        self.hash ^= CONSTANTS.ZOBRIST_DICT[CONSTANTS.COLORED_PIECES[us][piece_type - 1]][start]
+        self.hash ^= CONSTANTS.ZOBRIST_DICT[CONSTANTS.COLORED_PIECES[us][piece_type - 1]][end]
+
+    def toggle_piece(self, sqr: int, us: bool, piece_type: int):
+        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << sqr
+        self.hash ^= CONSTANTS.ZOBRIST_DICT[CONSTANTS.COLORED_PIECES[us][piece_type - 1]][sqr]
 
     def make_move(self, move: Move) -> bool:
+        # We update the zobrist hash at the same time we do the move
         # Updating move and state history stacks
         self.moves.append(move)
         self.prev_board_infos.append(copy(self.board_info))
@@ -268,14 +279,16 @@ class Bitboard:
         # Moving the piece
         self.move_piece(move.start, move.end, us, move.pieceType)
         if move.moveType == 1:
-            self.pieces[CONSTANTS.COLORED_PIECES[them][move.capturedPieceType - 1]] &= ~ (0b1 << move.end)
+            self.toggle_piece(move.end, us, move.pieceType)
         if move.specialMoveFlag > 0:
             # Case en passant capture
             if move.specialMoveFlag == 1:
                 if us:
-                    self.pieces['p'] ^= 1 << (self.board_info.en_passant_sqr - 8)
+                    # Capture their pawn a rank below
+                    self.toggle_piece(self.board_info.en_passant_sqr - 8, them, 1)
                 else:
-                    self.pieces['P'] ^= 1 << (self.board_info.en_passant_sqr + 8)
+                    # Capture their pawn a rank above
+                    self.toggle_piece(self.board_info.en_passant_sqr + 8, them, 1)
             # Case castling
             if move.specialMoveFlag == 2:
                 # Moving the rook (king already moved)
@@ -291,12 +304,14 @@ class Bitboard:
                         self.move_piece(56, 59, us, 4)
             # Case promotion
             if move.specialMoveFlag == 3:
-                self.pieces[CONSTANTS.COLORED_PIECES[us][0]] ^= 0b1 << move.end
-                self.pieces[CONSTANTS.COLORED_PIECES[us][move.promotionPieceType - 1]] ^= 0b1 << move.end
+                # Remove our pawn and turn it into another piece
+                self.toggle_piece(move.end, us, 1)
+                self.toggle_piece(move.end, us, move.promotionPieceType)
             # Case double pawn push
             if move.specialMoveFlag == 4:
                 self.board_info.can_en_passant = True
                 self.board_info.en_passant_sqr = move.start + 8 if us else move.start - 8
+                # TODO: ADD ZOBRIST FOR EN PASSANT MOVES
         # Updating the half-move clock:
         if move.moveType == 1 or move.pieceType == 1:
             self.board_info.half_move_clock = 0
@@ -338,11 +353,8 @@ class Bitboard:
         return True
 
     def unmove_piece(self, start, end, us, piece_type):
-        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] &= ~ (0b1 << end)
-        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] |= 0b1 << start
-
-    def create_piece(self, square, piece_type, color):
-        self.pieces[CONSTANTS.COLORED_PIECES[color][piece_type - 1]] |= 1 << square
+        self.toggle_piece(end, us, piece_type)
+        self.toggle_piece(start, us, piece_type)
 
     def unmake_move(self):
         move = self.moves.pop()
@@ -352,13 +364,13 @@ class Bitboard:
         them = not self.board_info.us
         self.unmove_piece(move.start, move.end, us, move.pieceType)
         if (move.specialMoveFlag == 0 or move.specialMoveFlag == 3) and move.moveType == 1:
-            self.create_piece(move.end, move.capturedPieceType, them)
+            self.toggle_piece(move.end, them, move.capturedPieceType)
         # Case en passant
         elif move.specialMoveFlag == 1:
             if us:
-                self.create_piece(move.end - 8, 1, them)
+                self.toggle_piece(move.end - 8, them, 1)
             else:
-                self.create_piece(move.end + 8, 1, them)
+                self.toggle_piece(move.end + 8, them, 1)
         # Case castling
         elif move.specialMoveFlag == 2:
             if move.specialMoveFlag == 2:
@@ -376,6 +388,16 @@ class Bitboard:
         # Case promotion
         elif move.specialMoveFlag == 3:
             self.pieces[CONSTANTS.COLORED_PIECES[us][move.promotionPieceType - 1]] ^= 0b1 << move.end
+
+    def zobrist_from_board(self) -> ZobristInformations:
+        return ZobristInformations(self.pieces['P'], self.pieces['p'], self.pieces['N'], self.pieces['n'],
+                                   self.pieces['B'], self.pieces['b'], self.pieces['R'], self.pieces['r'],
+                                   self.pieces['Q'], self.pieces['q'], self.pieces['K'], self.pieces['k'],
+                                   self.board_info.us, self.board_info.can_white_king_side_castle,
+                                   self.board_info.can_white_queen_side_castle,
+                                   self.board_info.can_black_king_side_castle,
+                                   self.board_info.can_black_queen_side_castle,
+                                   self.board_info.can_en_passant, self.board_info.en_passant_sqr)
 
 
 # Display bitboard in a more readable way

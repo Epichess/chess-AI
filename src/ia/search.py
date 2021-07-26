@@ -23,8 +23,12 @@ def evaluate(bitboard: Bitboard) -> int:
     return white_score - black_score
 
 
-def search(board: Bitboard, current_depth: int, max_depth: int, alpha: float = -float('inf'), beta: float = float('inf')) -> tuple[float, Move or None]:
-
+def search(board: Bitboard, current_depth: int, max_depth: int, hash_table: dict[int, tuple[float, Move or None]] = None, alpha: float = -float('inf'), beta: float = float('inf')) -> tuple[float, Move or None]:
+    # if hash_table is None:
+    #     hash_table = dict()
+    # board_hash = board.hash
+    # if hash_table.__contains__(board_hash):
+    #     return hash_table.get(board_hash)
     evaluation = evaluate(board)
     # print(evaluation)
     # print(board)
@@ -38,20 +42,23 @@ def search(board: Bitboard, current_depth: int, max_depth: int, alpha: float = -
         # Making the move and not doing anything if it turned out to be illegal
         if not board.make_move(move):
             continue
-        best_child_move = search(board, current_depth + 1, max_depth)
+        best_child_move = search(board, current_depth + 1, max_depth, hash_table)
         board.unmake_move()
         if board.board_info.us:
             alpha = max(alpha, best_child_move[0])
             if best_child_move[0] >= beta:
+                # hash_table[board_hash] = (best_child_move[0], move)
                 return best_child_move[0], move
             best_child_move = (-best_child_move[0], move)
         else:
             beta = max(beta, best_child_move[0])
             if best_child_move[0] <= alpha:
+                # hash_table[board_hash] = (best_child_move[0], move)
                 return best_child_move[0], move
             best_child_move = (best_child_move[0], move)
         evals.put(best_child_move)
     best_move = evals.get()
     if board.board_info.us:
         best_move = (-best_move[0], best_move[1])
+        # hash_table[board_hash] = best_move[0], best_move[1]
     return best_move
