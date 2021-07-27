@@ -1,11 +1,11 @@
 from __future__ import annotations
-from src.ia.bit_utils import extract_index
+from bit_utils import extract_index
 from move import Move
 from boardInfo import BoardInfo
 import CONSTANTS
 from collections import deque
 from copy import copy
-from src.ia.moveGenerator import MoveGenerator, MOVE_GENERATOR
+from moveGenerator import MoveGenerator, MOVE_GENERATOR
 
 
 class BitBoardMoveGenerator:
@@ -224,6 +224,30 @@ class Bitboard:
                     break
             if not found:
                 tmp += 1
+
+        if self.board_info.us:
+            fen += ' w '
+        else:
+            fen += ' b '
+
+        if self.board_info.can_white_king_side_castle:
+            fen += 'K'
+        if self.board_info.can_white_queen_side_castle:
+            fen += 'Q'
+        if self.board_info.can_black_king_side_castle:
+            fen += 'k'
+        if self.board_info.can_black_queen_side_castle:
+            fen += 'q'
+
+        if self.board_info.can_en_passant:
+            index_to_line = ['1', '2', '3', '4', '5', '6', '7', '8']
+            index_to_column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+            line = self.board_info.en_passant_sqr // 8
+            col = self.board_info.en_passant_sqr % 8
+            fen += f' {index_to_column[col] + index_to_line[line]}'
+        else:
+            fen += ' -'
+        fen += f' {self.board_info.half_move_clock} {len(self.moves)}'
         return fen
 
     def get_us_pieces(self, us):
