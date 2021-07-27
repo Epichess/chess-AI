@@ -6,6 +6,7 @@ import CONSTANTS
 from collections import deque
 from copy import copy
 from moveGenerator import MoveGenerator, MOVE_GENERATOR
+from gameApi import GameChecker
 
 
 class BitBoardMoveGenerator:
@@ -130,6 +131,7 @@ class Bitboard:
     prev_board_infos: deque[BoardInfo]
     board_info: BoardInfo
     moveGenerator: BitBoardMoveGenerator
+    gameAPI: GameChecker
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
         self.moves = deque()

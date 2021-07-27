@@ -12,14 +12,16 @@ print(board)
 print(board.make_move(Move(44, 28, 1, 0, 0, 4)))
 print(board)
 print(board.get_fen())
+
+board.gameAPI.make_move_API((44, 28))
 #
-print(board.make_move(Move(13, 29, 1, 0, 0, 4)))
-print(board)
-print(board.get_fen())
-#
-print(board.make_move(Move(28, 21, 1, 1, 1, 1)))
-print(board)
-print(board.get_fen())
+###print(board.make_move(Move(13, 29, 1, 0, 0, 4)))
+###print(board)
+###print(board.get_fen())
+####
+###print(board.make_move(Move(28, 21, 1, 1, 1, 1)))
+###print(board)
+###print(board.get_fen())
 
 #def debug(board: Bitboard, sqr: int, moveGenerator: MoveGenerator):
 #    print(f'Board Occupancy: \n{str_bit_board(board.occupancy)}')

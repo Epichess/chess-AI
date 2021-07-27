@@ -20,3 +20,7 @@ class GameChecker:
         if len(self.moveGenerator.gen_legal_moves(self.board)) == 0:
             return True
         return False
+
+    def make_move_API(self, move: tuple[int, int]) -> bool:
+        print(self.moveGenerator.gen_legal_moves(self.board))
+        return
