@@ -131,7 +131,6 @@ class Bitboard:
     prev_board_infos: deque[BoardInfo]
     board_info: BoardInfo
     moveGenerator: BitBoardMoveGenerator
-    gameAPI: GameChecker
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
         self.moves = deque()
