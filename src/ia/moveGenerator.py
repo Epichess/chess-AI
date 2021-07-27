@@ -49,7 +49,7 @@ class MoveGenerator:
                                                           masked_occup_to_rook_moves)[1]
 
     @staticmethod
-    def gen_sliding_piece_attacks(move_hash_table: dict[int, dict[int, int]], magic: (int, int),
+    def gen_sliding_piece_attacks(move_hash_table: dict[int, dict[int, int]], magic: dict[int, tuple[int, int]],
                                   mask_table: dict[int, int], piece_start_sqr: int, occupancy: int) -> int:
         # For the start square, get the corresponding mask and masked occupancy
         masked_occupancy = mask_table[piece_start_sqr] & occupancy
@@ -179,7 +179,7 @@ class MoveGenerator:
         return self.gen_pieces_moves(self.king_move_table, king_position, 6, us_pieces, them_pawns,
                                      them_knights, them_bishop, them_rooks, them_queens, them_pieces)
 
-    def gen_sliding_piece_moves(self, move_hash_table: dict[int, dict[int, int]], magic: (int, int),
+    def gen_sliding_piece_moves(self, move_hash_table: dict[int, dict[int, int]], magic: dict[int, tuple[int, int]],
                                 mask_table: dict[int, int], piece_position: int,
                                 piece_type: int, us_pieces: int, them_pawns: int, them_knights: int, them_bishop: int,
                                 them_rooks: int, them_queens: int, them_pieces: int, occupancy: int) -> list[Move]:
