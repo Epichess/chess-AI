@@ -247,7 +247,7 @@ class Bitboard:
             fen += f' {index_to_column[col] + index_to_line[line]}'
         else:
             fen += ' -'
-        fen += f' {self.board_info.half_move_clock} {len(self.moves)}'
+        fen += f' {self.board_info.half_move_clock} {(len(self.moves))//2}'
         return fen
 
     def get_us_pieces(self, us):
