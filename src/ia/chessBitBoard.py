@@ -6,8 +6,6 @@ import CONSTANTS
 from collections import deque
 from copy import copy
 from moveGenerator import MoveGenerator, MOVE_GENERATOR
-from gameApi import GameChecker
-
 
 class BitBoardMoveGenerator:
     moveGenerator: MoveGenerator

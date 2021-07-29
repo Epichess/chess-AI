@@ -1,5 +1,5 @@
 from chessBitBoard import Bitboard, BitBoardMoveGenerator
-from src.ia.move import Move
+from move import Move
 
 
 class GameChecker:
@@ -21,6 +21,12 @@ class GameChecker:
             return True
         return False
 
-    def make_move_API(self, move: tuple[int, int]) -> bool:
-        print(self.moveGenerator.gen_legal_moves(self.board))
-        return
+    def makeMoveAPI(self, move: tuple[int, int]) -> bool:
+
+        list = self.moveGenerator.gen_legal_moves(self.board)
+            
+        for i in range(len(list)):
+            if move[0] == list[i].start and move[1] == list[i].end:
+                print(list[i])
+                return self.board.make_move(list[i])
+        return False

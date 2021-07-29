@@ -2,18 +2,28 @@ from chessBitBoard import Bitboard, str_bit_board
 from move import Move
 from moveGenerator import MoveGenerator
 from magic_moves import *
+from gameApi import GameChecker
 
 #board = Bitboard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
-board = Bitboard('rnbqkbnr/pppp1ppp/4p3/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1')
-print(board)
+#board = Bitboard('rnbqkbnr/pppp1ppp/4p3/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1')
+#print(board)
 
 #moveGenerator = MoveGenerator()
+#print(board.make_move(Move(44, 28, 1, 0, 0, 4)))
+#print(board)
+#print(board.get_fen())
 
-print(board.make_move(Move(44, 28, 1, 0, 0, 4)))
-print(board)
-print(board.get_fen())
+boardAPI = GameChecker('rnbqkbnr/pppp1ppp/4p3/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1')
 
-board.gameAPI.make_move_API((44, 28))
+print(boardAPI.makeMoveAPI((55, 47)))
+
+print(boardAPI.board)
+
+print(boardAPI.makeMoveAPI((8, 16)))
+
+print(boardAPI.board)
+
+#board.gameAPI.make_move_API((44, 28))
 #
 ###print(board.make_move(Move(13, 29, 1, 0, 0, 4)))
 ###print(board)
