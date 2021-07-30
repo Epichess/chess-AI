@@ -13,15 +13,34 @@ from gameApi import GameChecker
 #print(board)
 #print(board.get_fen())
 
-boardAPI = GameChecker('rnbqkbnr/pppp1ppp/4p3/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1')
-
-print(boardAPI.makeMoveAPI((55, 47)))
-
-print(boardAPI.board)
+boardAPI = GameChecker('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0')
 
 print(boardAPI.makeMoveAPI((8, 16)))
-
 print(boardAPI.board)
+print(boardAPI.board.get_fen())
+
+print(boardAPI.makeMoveAPI((55, 47)))
+print(boardAPI.board)
+
+print(boardAPI.makeMoveAPI((16, 24)))
+print(boardAPI.board)
+print(boardAPI.board.get_fen())
+
+print(boardAPI.makeMoveAPI((47, 39)))
+print(boardAPI.board)
+print(boardAPI.board.get_fen())
+
+print(boardAPI.makeMoveAPI((0, 16)))
+print(boardAPI.board)
+print(boardAPI.board.get_fen())
+
+print(boardAPI.makeMoveAPI((63, 55)))
+print(boardAPI.board)
+print(boardAPI.board.get_fen())
+
+print(boardAPI.makeMoveAPI((15, 23)))
+print(boardAPI.board)
+print(boardAPI.board.get_fen())
 
 #board.gameAPI.make_move_API((44, 28))
 #
