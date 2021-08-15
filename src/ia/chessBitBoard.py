@@ -129,12 +129,18 @@ class Bitboard:
     prev_board_infos: deque[BoardInfo]
     board_info: BoardInfo
     moveGenerator: BitBoardMoveGenerator
+    
+    # dict[etat(checkmate or not), couleur(w = true, b = false)]
+    check_mate: dict[bool, bool]
+    # dict[etat(couleur(w = true, b = false), king in check or not]
+    king_check: dict[bool, bool]
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
         self.moves = deque()
         self.prev_board_infos = deque()
         self.board_info = BoardInfo(False, 0, False, False, False, False, 0, True)
         self.moveGenerator = BitBoardMoveGenerator()
+        self.king_check = {True: False, False: False}
 
         # Pieces bitboard dictionnary
         self.pieces = {

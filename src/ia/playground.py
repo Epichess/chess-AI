@@ -4,53 +4,54 @@ from moveGenerator import MoveGenerator
 from magic_moves import *
 from gameApi import GameChecker
 
-#board = Bitboard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
-#board = Bitboard('rnbqkbnr/pppp1ppp/4p3/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1')
-#print(board)
-
-#moveGenerator = MoveGenerator()
-#print(board.make_move(Move(44, 28, 1, 0, 0, 4)))
-#print(board)
-#print(board.get_fen())
-
-boardAPI = GameChecker('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0')
-
-print(boardAPI.makeMoveAPI((8, 16)))
-print(boardAPI.board)
-print(boardAPI.board.get_fen())
-
-print(boardAPI.makeMoveAPI((55, 47)))
-print(boardAPI.board)
-
-print(boardAPI.makeMoveAPI((16, 24)))
-print(boardAPI.board)
-print(boardAPI.board.get_fen())
-
-print(boardAPI.makeMoveAPI((47, 39)))
-print(boardAPI.board)
-print(boardAPI.board.get_fen())
-
-print(boardAPI.makeMoveAPI((0, 16)))
-print(boardAPI.board)
-print(boardAPI.board.get_fen())
-
-print(boardAPI.makeMoveAPI((63, 55)))
-print(boardAPI.board)
-print(boardAPI.board.get_fen())
-
-print(boardAPI.makeMoveAPI((15, 23)))
-print(boardAPI.board)
-print(boardAPI.board.get_fen())
-
-#board.gameAPI.make_move_API((44, 28))
+# test echec et mat
+#boardAPI = GameChecker('3k2R1/N7/1B6/6Q1/8/3R4/K7/8 w - - 0 1')
 #
-###print(board.make_move(Move(13, 29, 1, 0, 0, 4)))
-###print(board)
-###print(board.get_fen())
-####
-###print(board.make_move(Move(28, 21, 1, 1, 1, 1)))
-###print(board)
-###print(board.get_fen())
+#print(boardAPI.board)
+#
+#print(boardAPI.makeMoveAPI((41, 32)))
+#print(boardAPI.board)
+#print(boardAPI.board.get_fen())
+#
+#print(boardAPI.makeMoveAPI((41, 32)))
+#print(boardAPI.board)
+#print(boardAPI.board.get_fen())
+#
+#print('boardAPI.board.check_mate')
+#print(boardAPI.board.check_mate)
+#print('echec')
+#print(boardAPI.board.king_check)
+
+# echec noir
+boardAPI = GameChecker('4k3/8/2P5/8/8/8/8/4K3 w - - 0 1')
+
+print(boardAPI.board)
+
+print(boardAPI.checkMove((42, 50)))
+print(boardAPI.board)
+print(boardAPI.board.get_fen())
+#
+print(boardAPI.checkMove((60, 61)))
+print(boardAPI.board)
+print(boardAPI.board.get_fen())
+
+
+move = boardAPI.checkMove((50, 58))
+if move:
+    move.promotionPieceType = 5
+    print(boardAPI.makeMoveAPI(move))
+    print(boardAPI.board)
+    print(boardAPI.board.get_fen())
+#
+#print('boardAPI.board.check_mate')
+#print(boardAPI.board.check_mate)
+#
+print('echec')
+print(boardAPI.board.king_check)
+#
+#print(boardAPI.makeMoveAPI((50, 58, 5)))
+#print(boardAPI.board)
+#print(boardAPI.board.get_fen())
 
 #def debug(board: Bitboard, sqr: int, moveGenerator: MoveGenerator):
 #    print(f'Board Occupancy: \n{str_bit_board(board.occupancy)}')
