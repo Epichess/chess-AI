@@ -21,6 +21,7 @@ class ZobristInformations:
     canBlackCastleQueenSide: bool
     canEnPassant: bool
     enPassantSquare: int
+    pieceList: list[int]
 
     def __init__(self, wp, bp, wn, bn, wb, bb, wr, br, wq, bq, wk, bk, to_move, wksc, wqsc, bksc, bqsc, ep, eps):
         self.wp = wp
@@ -35,6 +36,7 @@ class ZobristInformations:
         self.bq = bq
         self.wk = wk
         self.bk = bk
+        self.pieceList = [wp, bp, wn, bn, wb, bb, wr, br, wq, bq, wk, bk]
         self.toMove = to_move
         self.canWhiteCastleKingSide = wksc
         self.canWhiteCastleQueenSide = wqsc
@@ -47,7 +49,7 @@ class ZobristInformations:
         zobrist_key = 0
         for j in range(12):
             for i in range(64):
-                if self.wp & 1 << i > 0:
+                if self.pieceList[j] & 1 << i > 0:
                     zobrist_key ^= CONSTANTS.ZOBRIST_KEYS[i + 64 * j]
         if self.toMove:
             zobrist_key ^= CONSTANTS.ZOBRIST_KEYS[768]

@@ -152,7 +152,7 @@ class Bitboard:
             'K': 0b0000000000000000000000000000000000000000000000000000000000000000,
             'P': 0b0000000000000000000000000000000000000000000000000000000000000000,
         }
-
+        
         # Fill the bitboard dictionnary
         i = 64
         groups = fen.split(' ')
@@ -376,7 +376,9 @@ class Bitboard:
         # Case promotion
         elif move.specialMoveFlag == 3:
             self.pieces[CONSTANTS.COLORED_PIECES[us][move.promotionPieceType - 1]] ^= 0b1 << move.end
-
+        self.side_pieces[us] = self.get_us_pieces(us)
+        self.side_pieces[them] = self.get_us_pieces(them)
+        self.occupancy = self.get_occupancy()
 
 # Display bitboard in a more readable way
 def str_bit_board(bits: int) -> str:
