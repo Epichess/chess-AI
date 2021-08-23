@@ -1,11 +1,11 @@
 from __future__ import annotations
-from src.ia.bit_utils import extract_index
+from bit_utils import extract_index
 from move import Move
 from boardInfo import BoardInfo
 import CONSTANTS
 from collections import deque
 from copy import copy
-from src.ia.moveGenerator import MoveGenerator, MOVE_GENERATOR
+from moveGenerator import MoveGenerator, MOVE_GENERATOR
 
 
 class BitBoardMoveGenerator:
