@@ -1,5 +1,5 @@
 from chessBitBoard import Bitboard, BitBoardMoveGenerator
-from src.ia.move import Move
+from move import Move
 
 
 class GameChecker:
