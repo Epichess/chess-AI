@@ -36,7 +36,7 @@ class ZobristInformations:
         self.bq = bq
         self.wk = wk
         self.bk = bk
-        self.pieceList = [wp, bp, wn, bn, wb, bb, wr, br, wq, bq, wk, bk]
+        self.pieceList = [wp, wn, wb, wr, wq, wk, bp, bn, bb, br, bq, bk]
         self.toMove = to_move
         self.canWhiteCastleKingSide = wksc
         self.canWhiteCastleQueenSide = wqsc

@@ -1,5 +1,7 @@
 from chessBitBoard import Bitboard
 from zobrist import ZobristInformations
+from move import Move
+import CONSTANTS
 
 
 class ZobristBoard:
@@ -9,6 +11,13 @@ class ZobristBoard:
     def __init__(self, fen: str):
         self.board = Bitboard(fen)
         self.current_hash = zobrist_from_board(self.board).__hash__()
+
+    def move_piece(self, start: int, end: int, us: bool, piece_type: int):
+        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << start
+        self.pieces[CONSTANTS.COLORED_PIECES[us][piece_type - 1]] ^= 0b1 << end
+
+    def zobrist_move(self, move: Move) -> bool:
+        return False
 
 
 def zobrist_from_board(board: Bitboard) -> ZobristInformations:
