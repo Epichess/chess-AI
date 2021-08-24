@@ -130,12 +130,18 @@ class Bitboard:
     prev_board_infos: deque[BoardInfo]
     board_info: BoardInfo
     moveGenerator: BitBoardMoveGenerator
+    
+    # dict[etat(checkmate or not), couleur(w = true, b = false)]
+    check_mate: dict[bool, bool]
+    # dict[etat(couleur(w = true, b = false), king in check or not]
+    king_check: dict[bool, bool]
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'):
         self.moves = deque()
         self.prev_board_infos = deque()
         self.board_info = BoardInfo(False, 0, False, False, False, False, 0, True)
         self.moveGenerator = BitBoardMoveGenerator()
+        self.king_check = {True: False, False: False}
 
         # Pieces bitboard dictionnary
         self.pieces = {
@@ -224,6 +230,30 @@ class Bitboard:
                     break
             if not found:
                 tmp += 1
+
+        if self.board_info.us:
+            fen += ' w '
+        else:
+            fen += ' b '
+
+        if self.board_info.can_white_king_side_castle:
+            fen += 'K'
+        if self.board_info.can_white_queen_side_castle:
+            fen += 'Q'
+        if self.board_info.can_black_king_side_castle:
+            fen += 'k'
+        if self.board_info.can_black_queen_side_castle:
+            fen += 'q'
+
+        if self.board_info.can_en_passant:
+            index_to_line = ['1', '2', '3', '4', '5', '6', '7', '8']
+            index_to_column = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+            line = self.board_info.en_passant_sqr // 8
+            col = self.board_info.en_passant_sqr % 8
+            fen += f' {index_to_column[col] + index_to_line[line]}'
+        else:
+            fen += ' -'
+        fen += f' {self.board_info.half_move_clock} {(len(self.moves))//2}'
         return fen
 
     def get_us_pieces(self, us):
