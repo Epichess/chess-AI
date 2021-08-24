@@ -7,6 +7,7 @@ from collections import deque
 from copy import copy
 from moveGenerator import MoveGenerator, MOVE_GENERATOR
 
+
 class BitBoardMoveGenerator:
     moveGenerator: MoveGenerator
     coloredPieces: dict[bool, str]

@@ -26,29 +26,37 @@ def evaluate(bitboard: Bitboard) -> int:
 def search(board: Bitboard, current_depth: int, max_depth: int, alpha: float = -float('inf'), beta: float = float('inf')) -> tuple[float, Move or None]:
 
     evaluation = evaluate(board)
-    # print(evaluation)
-    # print(board)
     if abs(evaluation) > 500:
         return evaluation, None
     if current_depth == max_depth:
         return evaluation, None
 
+    # evals contains tuples of Moves and evaluations
     evals = PriorityQueue()
     for move in board.moveGenerator.gen_moves(board):
         # Making the move and not doing anything if it turned out to be illegal
-        if not board.make_move(move):
-            continue
-        best_child_move = search(board, current_depth + 1, max_depth)
-        board.unmake_move()
+
         if board.board_info.us:
-            alpha = max(alpha, best_child_move[0])
-            if best_child_move[0] >= beta:
-                return best_child_move[0], move
+            value = -float('inf')
+            if not board.make_move(move):
+                continue
+            best_child_move = search(board, current_depth + 1, max_depth, alpha, beta)
+            value = max(value, best_child_move[0])
+            board.unmake_move()
+            if value >= beta:
+                return value, move
+            alpha = max(alpha, value)
             best_child_move = (-best_child_move[0], move)
         else:
-            beta = max(beta, best_child_move[0])
-            if best_child_move[0] <= alpha:
-                return best_child_move[0], move
+            value = float('inf')
+            if not board.make_move(move):
+                continue
+            best_child_move = search(board, current_depth + 1, max_depth, alpha, beta)
+            value = max(value, best_child_move[0])
+            board.unmake_move()
+            if value <= alpha:
+                return value, move
+            beta = max(beta, value)
             best_child_move = (best_child_move[0], move)
         evals.put(best_child_move)
     best_move = evals.get()
