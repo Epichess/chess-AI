@@ -10,7 +10,6 @@ class ZobristBoard:
         self.board = Bitboard(fen)
         self.current_hash = zobrist_from_board(self.board).__hash__()
 
-
 def zobrist_from_board(board: Bitboard) -> ZobristInformations:
     return ZobristInformations(board.pieces['P'], board.pieces['p'], board.pieces['N'], board.pieces['n'],
                                board.pieces['B'], board.pieces['b'], board.pieces['R'], board.pieces['r'],

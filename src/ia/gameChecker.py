@@ -6,8 +6,8 @@ class GameChecker:
     board: Bitboard
     moveGenerator: BitBoardMoveGenerator
 
-    def __init__(self, fen: str):
-        self.board = Bitboard(fen)
+    def __init__(self, bitboard: Bitboard):
+        self.board = Bitboard(bitboard)
         self.moveGenerator = BitBoardMoveGenerator()
 
     def checkMove(self, move: Move):
@@ -15,6 +15,9 @@ class GameChecker:
             return True
         else:
             return False
+
+    def getTargetedSquare(self, move: Move) -> int:
+        return 0
 
     def checkGameIsOver(self):
         if len(self.moveGenerator.gen_legal_moves(self.board)) == 0:
