@@ -8,7 +8,6 @@ from search import evaluate, search
 from gameChecker import GameChecker
 
 board = Bitboard('k3r3/8/4N3/8/8/8/7P/3K4 w - - 0 1')
-
 # print('black king castle: ', board.board_info.can_black_king_side_castle)
 # print('black queen castle:', board.board_info.can_black_queen_side_castle)
 # print('white king castle: ', board.board_info.can_white_king_side_castle)
