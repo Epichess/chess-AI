@@ -42,6 +42,15 @@ class GameChecker:
                     list_move_return.append(list_move[i])
         return ObjectCheckMove(list_move_return)
 
+    def askMoveAPI(self, start: int):
+        moves = []
+        list_move = self.moveGenerator.gen_legal_moves(self.board)
+
+        for m in list_move:
+            if m.start == start:
+                moves.append(m)
+        return moves
+
     def makeMoveAPI(self, start: int, end: int, promotion: int = 0) -> ObjectMakeMove:
 
         move: Move = 0
