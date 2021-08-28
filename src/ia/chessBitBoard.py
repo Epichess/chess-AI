@@ -244,14 +244,21 @@ class Bitboard:
         else:
             fen += ' b '
 
+        anyCastle = False
         if self.board_info.can_white_king_side_castle:
+            anyCastle = True
             fen += 'K'
         if self.board_info.can_white_queen_side_castle:
+            anyCastle = True
             fen += 'Q'
         if self.board_info.can_black_king_side_castle:
+            anyCastle = True
             fen += 'k'
         if self.board_info.can_black_queen_side_castle:
+            anyCastle = True
             fen += 'q'
+        if not anyCastle:
+            fen += '-'
 
         if self.board_info.can_en_passant:
             index_to_line = ['1', '2', '3', '4', '5', '6', '7', '8']
