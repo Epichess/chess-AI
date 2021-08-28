@@ -210,40 +210,55 @@ class Bitboard:
     # Retrieve FEN line from dictionnary
     def get_fen(self):
         fen = ""
-        tmp = 0
+        line = ""
+        tmp = 0 # represents blank squares
         for i in range(0, 64):
             found = False
             if i > 0 and i % 8 == 0:
+                # if EOL and tmp > 0, append it
                 if tmp > 0:
-                    fen += str(tmp)
+                    line = str(tmp) + line
                     tmp = 0
+                fen += line
                 fen += '/'
+                line = ""
 
             for key, value in self.pieces.items():
                 value = list(f'{value:064b}')
                 if value[i] == '1':
                     if tmp > 0:
-                        fen += str(tmp)
+                        line = str(tmp) + line
                         tmp = 0
-                    fen += key
+                    line = key + line
                     found = True
                     break
             if not found:
                 tmp += 1
+
+            if i == 63:
+                line = str(tmp) + line
+                fen += line
 
         if self.board_info.us:
             fen += ' w '
         else:
             fen += ' b '
 
+        anyCastle = False
         if self.board_info.can_white_king_side_castle:
+            anyCastle = True
             fen += 'K'
         if self.board_info.can_white_queen_side_castle:
+            anyCastle = True
             fen += 'Q'
         if self.board_info.can_black_king_side_castle:
+            anyCastle = True
             fen += 'k'
         if self.board_info.can_black_queen_side_castle:
+            anyCastle = True
             fen += 'q'
+        if not anyCastle:
+            fen += '-'
 
         if self.board_info.can_en_passant:
             index_to_line = ['1', '2', '3', '4', '5', '6', '7', '8']

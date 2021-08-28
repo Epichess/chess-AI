@@ -42,7 +42,7 @@ class GameChecker:
                     list_move_return.append(list_move[i])
         return ObjectCheckMove(list_move_return)
 
-    def makeMoveAPI(self, start: int, end: int, promotion: int = 0) -> bool:
+    def makeMoveAPI(self, start: int, end: int, promotion: int = 0) -> ObjectMakeMove:
 
         move: Move = 0
 
