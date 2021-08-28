@@ -96,6 +96,8 @@ class BitBoardMoveGenerator:
         them_pieces = board.side_pieces[not board.board_info.us]
         can_queen_side_castle = board.board_info.can_white_queen_side_castle if us else board.board_info.can_black_queen_side_castle
         can_king_side_castle = board.board_info.can_white_king_side_castle if us else board.board_info.can_black_king_side_castle
+        print('can king side castle: ', can_king_side_castle)
+        print('can queen side castle: ', can_queen_side_castle)
         result += self.moveGenerator.gen_king_moves(board.pieces[us_pieces_list[5]], us_pieces,
                                                     board.pieces[them_pieces_list[0]],
                                                     board.pieces[them_pieces_list[1]],

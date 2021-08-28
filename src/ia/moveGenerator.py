@@ -7,6 +7,7 @@ import CONSTANTS
 from move import Move
 from bit_utils import extract_index
 from magic_moves import magic_hash
+from bit_utils import str_bit_board
 
 
 class MoveGenerator:
@@ -260,7 +261,7 @@ class MoveGenerator:
         queen_side_castle_attack_mask = 0b00011100 if us else 0b00011100 << 56
         king_side_castle_attack_mask = 0b01110000 if us else 0b01110000 << 56
         queen_side_castle_empty_mask = 0b00001110 if us else 0b00001110 << 56
-        king_side_castle_empty_mask = 0b0110 if us else 0b0110 << 56
+        king_side_castle_empty_mask = 0b01100000 if us else 0b01100000 << 56
         king_sqr = extract_index(king_position)[0]
         if can_queen_side_castle and queen_side_castle_attack_mask & them_attacks == 0 and queen_side_castle_empty_mask & occupancy == 0:
             result.append(Move(king_sqr, king_sqr - 2, 6, 0, 0, 2, 0, False))
