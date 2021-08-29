@@ -41,7 +41,7 @@ class Move:
         return True
 
     def __str__(self):
-        return f"Start square : {self.start}\nEnd square: {self.end}\nPiece Type: {self.pieceType}\nMove Type: {self.moveType}\nSpecial Flag: {self.specialMoveFlag}\nPromotion type: {self.promotionPieceType}\nCaptured Piece Type: {self.capturedPieceType}\n"
+        return f"Start square : {self.start}\nEnd square: {self.end}\nPiece Type: {self.pieceType}\nMove Type: {self.moveType}\nCaptured Piece Type: {self.capturedPieceType}\nSpecial Flag: {self.specialMoveFlag}\nPromotion type: {self.promotionPieceType}\n"
 
     def __gt__(self, other):
         return self.moveType > other.moveType
