@@ -2,11 +2,8 @@ from chessBitBoard import Bitboard, BitBoardMoveGenerator
 from bit_utils import extract_index
 from move import Move
 from objectReturnApi import ObjectCheckMove, ObjectMakeMove
-<<<<<<< HEAD
 from bit_utils import str_bit_board
-=======
 from search import search
->>>>>>> 37c20caf6e4ea7bc41a84a80aa09e32ab66b85b3
 
 class GameChecker:
     board: Bitboard
