@@ -7,17 +7,18 @@ from moveTable import gen_black_pawn_move_table, gen_white_pawn_move_table
 from search import evaluate, search
 from gameChecker import GameChecker
 
-board = Bitboard('r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4')
+board = Bitboard('rnbq1bnr/pppk2Pp/3p4/4p3/8/5P2/PPPP2PP/0RNBQKBNR w KQ - 1 0')
 
 print(board)
 
 moveGenerator = BitBoardMoveGenerator()
 
-for move in moveGenerator.gen_moves(board):
-    if move.specialMoveFlag == 2:
-        print(move)
+# for m in moveGenerator.gen_moves(board):
+#     if(m.specialMoveFlag == 3 and m.promotionPieceType == 5):
+#         board.make_move(m)
+#         break
 
-print(board.board_info.can_black_queen_side_castle)
-print(board.board_info.can_black_king_side_castle)
-print(board.board_info.can_white_queen_side_castle)
-print(board.board_info.can_white_king_side_castle)
+board.make_move(Move(54, 63, 1, 1, 4, 3, 5))
+
+print(board)
+

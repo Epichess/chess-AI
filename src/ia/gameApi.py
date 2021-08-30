@@ -2,6 +2,7 @@ from chessBitBoard import Bitboard, BitBoardMoveGenerator
 from bit_utils import extract_index
 from move import Move
 from objectReturnApi import ObjectCheckMove, ObjectMakeMove
+from bit_utils import str_bit_board
 from search import search
 
 class GameChecker:
@@ -53,7 +54,7 @@ class GameChecker:
         return moves
 
     def makeMoveAPI(self, start: int, end: int, promotion: int = 0) -> ObjectMakeMove:
-
+        promotion = int(promotion)
         move: Move = 0
 
         list_move = self.moveGenerator.gen_legal_moves(self.board)
@@ -75,8 +76,6 @@ class GameChecker:
                         if list_move[i].promotionPieceType == promotion and list_move[i].specialMoveFlag == 3:
                             move = list_move[i]
                             break
-                    else:
-                        break
             if move != 0:
                 if self.board.make_move(move):
                     is_king_check = self.moveGenerator.gen_attacks(self.board, us)
@@ -91,12 +90,12 @@ class GameChecker:
         return ObjectMakeMove(False, self.board.king_check, self.board.check_mate, self.board.get_fen())
 
     def makeMoveAI(self) -> ObjectMakeMove:
-        move = search(self.board, 0, 1)
+        move = search(self.board, 0, 4)
         us = self.board.board_info.us
         white_king = extract_index(self.board.pieces['K'])
         black_king = extract_index(self.board.pieces['k'])
         self.board.king_check = {'w': False, 'b': False}
-        if move[1] != None:
+        if move[1] is not None:
             if self.board.make_move(move[1]):
                 is_king_check = self.moveGenerator.gen_attacks(self.board, us)
                 for i in range(len(extract_index(is_king_check))):
