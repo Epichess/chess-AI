@@ -90,12 +90,12 @@ class GameChecker:
         return ObjectMakeMove(False, self.board.king_check, self.board.check_mate, self.board.get_fen())
 
     def makeMoveAI(self) -> ObjectMakeMove:
-        move = search(self.board, 0, 1)
+        move = search(self.board, 0, 4)
         us = self.board.board_info.us
         white_king = extract_index(self.board.pieces['K'])
         black_king = extract_index(self.board.pieces['k'])
         self.board.king_check = {'w': False, 'b': False}
-        if move[1] != None:
+        if move[1] is not None:
             if self.board.make_move(move[1]):
                 is_king_check = self.moveGenerator.gen_attacks(self.board, us)
                 for i in range(len(extract_index(is_king_check))):
