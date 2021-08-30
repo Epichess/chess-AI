@@ -22,7 +22,7 @@ class GameChecker:
 
     def checkGameIsOver(self):
         if len(self.moveGenerator.gen_legal_moves(self.board)) == 0:
-            self.board.check_mate = {'checkmate': True, 'color': self.board.board_info.us}
+            self.board.check_mate = True
             return True
         return False
     
@@ -37,7 +37,7 @@ class GameChecker:
         list_move = self.moveGenerator.gen_legal_moves(self.board)
 
         if len(list_move) == 0:
-            self.board.check_mate = {'checkmate': True, 'color': self.board.board_info.us}
+            self.board.check_mate = True
         else:
             for i in range(len(list_move)):
                 if move == list_move[i].start:
@@ -63,34 +63,35 @@ class GameChecker:
         black_king = extract_index(self.board.pieces['k'])
 
         us = self.board.board_info.us
-
         self.board.king_check = {'w': False, 'b': False}
+        self.board.check_mate = False
 
-        if len(list_move) == 0:
-            self.board.check_mate = {'checkmate': True, 'color': self.board.board_info.us}
-        else:
-            for i in range(len(list_move)):
-                if start == list_move[i].start and end == list_move[i].end:
-                    move = list_move[i]
-                    if promotion > 0:
-                        if list_move[i].promotionPieceType == promotion and list_move[i].specialMoveFlag == 3:
-                            move = list_move[i]
-                            break
-            if move != 0:
-                if self.board.make_move(move):
-                    is_king_check = self.moveGenerator.gen_attacks(self.board, us)
-                    for i in range(len(extract_index(is_king_check))):
-                        if us:
-                            if black_king[0] == extract_index(is_king_check)[i]:
-                                self.board.king_check['b'] = True
-                        else:
-                            if white_king[0] == extract_index(is_king_check)[i]:
-                                self.board.king_check['w'] = True
-                    return ObjectMakeMove(True, self.board.king_check, self.board.check_mate, self.board.get_fen())
+
+        for i in range(len(list_move)):
+            if start == list_move[i].start and end == list_move[i].end:
+                move = list_move[i]
+                if promotion > 0:
+                    if list_move[i].promotionPieceType == promotion and list_move[i].specialMoveFlag == 3:
+                        move = list_move[i]
+                        break
+        if move != 0:
+            if self.board.make_move(move):
+                is_king_check = self.moveGenerator.gen_attacks(self.board, us)
+                for i in range(len(extract_index(is_king_check))):
+                    if us:
+                        if black_king[0] == extract_index(is_king_check)[i]:
+                            self.board.king_check['b'] = True
+                    else:
+                        if white_king[0] == extract_index(is_king_check)[i]:
+                            self.board.king_check['w'] = True
+                if self.board.king_check['b'] or self.board.king_check['w']:
+                    if len(self.moveGenerator.gen_legal_moves(self.board)) == 0:
+                        self.board.check_mate = True
+                return ObjectMakeMove(True, self.board.king_check, self.board.check_mate, self.board.get_fen())
         return ObjectMakeMove(False, self.board.king_check, self.board.check_mate, self.board.get_fen())
 
     def makeMoveAI(self) -> ObjectMakeMove:
-        move = search(self.board, 0, 4)
+        move = search(self.board, 0, 2)
         us = self.board.board_info.us
         white_king = extract_index(self.board.pieces['K'])
         black_king = extract_index(self.board.pieces['k'])
@@ -105,7 +106,6 @@ class GameChecker:
                     else:
                         if white_king[0] == extract_index(is_king_check)[i]:
                             self.board.king_check['w'] = True
-                return ObjectMakeMove(True, self.board.king_check, self.board.check_mate, self.board.get_fen())
+                return ObjectMakeMove(True, self.board.king_check, False, self.board.get_fen())
         else:
-            return ObjectMakeMove(False, True, True, self.board.get_fen())
-        return ObjectMakeMove(False, self.board.king_check, self.board.check_mate, self.board.get_fen())
+            return ObjectMakeMove(True, True, True, self.board.get_fen())
