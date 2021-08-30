@@ -132,7 +132,7 @@ class Bitboard:
     moveGenerator: BitBoardMoveGenerator
     
     # dict[etat(checkmate or not), couleur(w = true, b = false)]
-    check_mate: dict[bool, bool]
+    check_mate: bool
     # dict[etat(couleur(w = true, b = false), king in check or not]
     king_check: dict[bool, bool]
 
